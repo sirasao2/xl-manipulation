@@ -2,7 +2,7 @@
 Python script for xlsm manipulation as well as other utilities
 
 #### A. Changes from common parameters
-Functions which reads column B from build plans "Common Parameters", saves values to list, and replaces the proper excel sheet values with corrected information in designated sheets
+Functions which read column B from build plans "Common Parameters", save values to a list, and replace the proper excel sheet values with corrected information in designated sheets
 
 #### B. Changes based on different module types
 Functions which check to see vm module type per sheet, check correct information to replace based on module type via a dictionary, and replace improper cell information with correct information by iterating through key, value pairs in designated sheets
