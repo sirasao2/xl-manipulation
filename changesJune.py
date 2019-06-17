@@ -184,17 +184,168 @@ def change_tag_values_common(build_plan_path, preload_path):
 				wb = xw.Book(preload_path)
 				wb.sheets[8].range('C' + str(i+1)).value = v
 
-	
+def change_tag_values_floating_ip(build_plan_path, preload_path):
+	build_plan_ips_values = pd.read_excel(build_plan_path, sheet_name="IP Assignments", usecols = 'C') # fetch values from build plan
+	build_plan_ips_list = build_plan_ips_values.iloc[:, 0].tolist() # convert to list for indexing
+	build_plan_ips_list = [x for x in build_plan_ips_list if str(x) != 'nan']
+	#print(build_plan_ips_list)
+
+	build_plan_modules_values = pd.read_excel(build_plan_path, sheet_name="IP Assignments", usecols = 'B') # fetch values from build plan
+	build_plan_modules_list = build_plan_modules_values.iloc[:, 0].tolist() # convert to list for indexing
+	build_plan_modules_list = [x for x in build_plan_modules_list if str(x) != 'nan']
+	#print(build_plan_modules_list)
+
+	vips = []
+	for i in range(0, len(build_plan_modules_list)):
+			if build_plan_modules_list[i].endswith("VIP"):
+				vips.append(build_plan_ips_list[i])
+	# isolate vm type
+	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'B')
+	col_B_list_vms = extract_vm.iloc[:, 0].tolist() # Save values of Column B to a list
+	vm_type = col_B_list_vms[-1] # save VM Type
+
+	wb = xlrd.open_workbook(preload_path)
+	sheet_names = wb.sheet_names()
+	tag_sheet = wb.sheet_by_name(sheet_names[8])
+
+	if vm_type == 'qtracelb':
+		# replace with index 1
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1).endswith("oam_protected_floating_ip")):
+				print(i)
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = vips[1]
+
+	if vm_type == 'Vertica MC':
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1).endswith("oam_protected_floating_ip")):
+				print(i)
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = vips[0]
+
+def change_tag_values_protected_ip(build_plan_path, preload_path):
+	# check the module name
+	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'B')
+	col_B_list_vms = extract_vm.iloc[:, 0].tolist() # Save values of Column B to a list
+	vm_type = col_B_list_vms[-1] # save VM Type
+	#print(vm_type)
+	# make function which appends all module ips into lists
+	#ips_sheet = pd.read_excel(build_plan_path, sheet_name="IP Assignments", usecols = 'C')
+	#col_C = ips_sheet.iloc[:, 0].tolist()
+	wb = xlrd.open_workbook(build_plan_path)
+	sheet_names = wb.sheet_names()
+	ips = wb.sheet_by_name(sheet_names[2])
+
+
+
+	processing_list = []
+	for i in range(ips.nrows):
+		if(ips.cell_value(i, 0) == "processing"):
+			wb = xw.Book(build_plan_path)
+			processing_list.append(wb.sheets[2].range('C' + str(i+1)).value)
+	processing_ips = ",".join(processing_list)	
+	print(processing_ips)
+	print("\n")
+
+	vertica_list = []
+	for i in range(ips.nrows):
+		if(ips.cell_value(i, 0) == "Vertica MC"):
+			wb = xw.Book(build_plan_path)
+			vertica_list.append(wb.sheets[2].range('C' + str(i+1)).value)
+	vertica_ips = ",".join(vertica_list)	
+	print(vertica_ips)
+	print("\n")
+
+	q_list = []
+	for i in range(ips.nrows):
+		if(ips.cell_value(i, 0) == "qtracelb"):
+			wb = xw.Book(build_plan_path)
+			q_list.append(wb.sheets[2].range('C' + str(i+1)).value)
+	q_ips = ",".join(q_list)	
+	print(q_ips)
+	print("\n")
+
+	sdn_list = []
+	for i in range(ips.nrows):
+		if(ips.cell_value(i, 0) == "SDN-O (Kubernete)"):
+			wb = xw.Book(build_plan_path)
+			sdn_list.append(wb.sheets[2].range('C' + str(i+1)).value)
+	sdn_ips = ",".join(sdn_list)	
+	print(sdn_ips)
+	print("\n")
+
+	sdn1_list = []
+	for i in range(ips.nrows):
+		if(ips.cell_value(i, 0) == "SDN-O (Ansible)"):
+			wb = xw.Book(build_plan_path)
+			sdn1_list.append(wb.sheets[2].range('C' + str(i+1)).value)
+	sdn1_ips = ",".join(sdn1_list)	
+	print(sdn1_ips)
+	print("\n")
+
+	js_list = []
+	for i in range(ips.nrows):
+		if(ips.cell_value(i, 0) == "Jumpserver Linux"):
+			wb = xw.Book(build_plan_path)
+			js_list.append(wb.sheets[2].range('C' + str(i+1)).value)
+	js_ips = ','.join(js_list)
+	print(js_ips)
+
+	# replace protected ip cell with csv of the ips
+
+	wb = xlrd.open_workbook(preload_path)
+	sheet_names = wb.sheet_names()
+	tag_sheet = wb.sheet_by_name(sheet_names[8])
+
+	if vm_type == 'processing':
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1).endswith("oam_protected_ips")):
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = processing_ips
+
+	if vm_type == 'Vertica MC':
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1).endswith("oam_protected_ips")):
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = vertica_ips
+
+	if vm_type == 'qtracelb':
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1).endswith("oam_protected_ips")):
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = q_ips
+
+	if vm_type == 'SDN-O (Kubernete)':
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1).endswith("oam_protected_ips")):
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = sdn_ips
+
+	if vm_type == 'SDN-O (Ansible)':
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1).endswith("oam_protected_ips")):
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = sdn1_ips
+
+	if vm_type == 'Jumpserver Linux':
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1).endswith("oam_protected_ips")):
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = js_ips
+
 
 
 
 # main()
+
 build_plan_path = r'C:\Users\rs623u\vnf_changes_june\files\Build_Plan_MRBE_LSA1A_updated.xlsx'
 #preload_path = r'C:\Users\rs623u\vnf_changes_june\files\zcccclrsrv01_analyst_template.xlsm'
 preload_path = r'C:\Users\rs623u\vnf_changes_june\files\zcccclrsrv01_qtracelb_template.xlsm'
-#changes_general_common_parameters(build_plan_path, preload_path)
-#changes_networks_common_parameters(build_plan_path, preload_path)
-#changes_availability_zones(build_plan_path, preload_path)
-#change_vm_name(build_plan_path, preload_path)
-#change_vm_network_ips(build_plan_path, preload_path)
-change_tag_values_common(build_plan_path, preload_path)
+# changes_general_common_parameters(build_plan_path, preload_path)
+# changes_networks_common_parameters(build_plan_path, preload_path)
+# changes_availability_zones(build_plan_path, preload_path)
+# change_vm_name(build_plan_path, preload_path)
+# change_vm_network_ips(build_plan_path, preload_path)
+# change_tag_values_common(build_plan_path, preload_path)
+#change_tag_values_floating_ip(build_plan_path, preload_path)
+change_tag_values_protected_ip(build_plan_path, preload_path)
