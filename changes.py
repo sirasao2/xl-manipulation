@@ -15,12 +15,48 @@ from openpyxl.utils.cell import get_column_letter
 import re
 from collections import defaultdict
 
+#wb.save("C:\\Users\\rs623u\\vnf_changes_june\\changed\\" + final_vf_module_name + ".xlsm")
+#wb.close()
+
+def changes_general_vf_module_name(build_plan_path, preload_path):
+	global final_vf_module_name
+	# find module type
+	# find file number to append
+	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'B')
+	col_B_list_vms = extract_vm.iloc[:, 0].tolist() # Save values of Column B to a list
+	vm_type = col_B_list_vms[-1] # save VM Type
+	#print(vm_type)
+	file_name = preload_path[30:]
+	num_append = str(re.search(r'\d+', file_name).group())
+	num_append_last_digit = (num_append[-1])
+
+
+	# make dictionary of {module type : vf-module_name}
+	wb = xlrd.open_workbook(build_plan_path)
+	sheet_names = wb.sheet_names()
+	mrbe = wb.sheet_by_name(sheet_names[1])
+
+	d = {}
+	for i in range(mrbe.nrows):
+		module = mrbe.cell_value(i, 1)
+		zones = mrbe.cell_value(i, 3)
+		d[module] = zones
+
+	# look up key value, pair and replace vf-module-name + append number
+	wb = xw.Book(preload_path)
+	for k, v in d.items():
+		if v != '' and k == vm_type:
+			#print(v+num_append_last_digit)
+			wb.sheets[1].range('C6').value = v+num_append_last_digit # proper name
+
+	final_vf_module_name = wb.sheets[1].range('C6').value
+
 # Changes in the General Tab
 def changes_general_common_parameters(build_plan_path, preload_path):
 	build_plan_general_values = pd.read_excel(build_plan_path, sheet_name="Common Parameters", usecols = 'B') # fetch values from build plan
 	build_plan_general_values_list = build_plan_general_values.iloc[:, 0].tolist() # convert to list for indexing
 	build_plan_general_values_list = [x for x in build_plan_general_values_list if str(x) != 'nan'] # remove all instances of 'nan'
-	#print(build_plan_general_values_list)
+	
 	vnf_type_updated = build_plan_general_values_list[0] # reference updated values ...
 	vnf_name_updated = build_plan_general_values_list[1]
 	vnf_module_model_name_updated = build_plan_general_values_list[2]
@@ -31,7 +67,8 @@ def changes_general_common_parameters(build_plan_path, preload_path):
 	wb.sheets[1].range('C13').value = vnf_type_updated
 	wb.sheets[1].range('C12').value = vnf_name_updated
 	wb.sheets[1].range('C8').value = vnf_module_model_name_updated
-	wb.sheets[1].range('C6').value = vnf_module_name_updated
+	# INCORRECT wb.sheets[1].range('C6').value = vnf_module_name_updated <- base one I need to chnage
+
 
 def changes_networks_common_parameters(build_plan_path, path):
 	build_plan_network_name_values = pd.read_excel(build_plan_path, sheet_name="Common Parameters", usecols = 'B')
@@ -86,6 +123,7 @@ def changes_networks_common_parameters(build_plan_path, path):
 		if(networks_sheet.cell_value(i, 1) == 'cdr_direct'):
 			wb = xw.Book(preload_path)
 			wb.sheets[3].range('F' + str(i+1)).value = cdr_direct_subnet_name_updated
+
 
 def changes_availability_zones(build_plan_path, preload_path):
 	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'B')
@@ -143,6 +181,7 @@ def change_vm_name(build_plan_path, preload_path):
 			wb = xw.Book(preload_path)
 			wb.sheets[4].range('C7').value = v.strip()+num_append.strip()
 
+
 def change_vm_network_ips(build_plan_path, preload_path):
 	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'C')
 	col_C_list_vms = extract_vm.iloc[:, 0].tolist() # Save values of Column B to a list
@@ -162,6 +201,7 @@ def change_vm_network_ips(build_plan_path, preload_path):
 		if k  == vm_name:
 			wb = xw.Book(preload_path)
 			wb.sheets[6].range('D7').value = v
+
 
 def change_tag_values_common(build_plan_path, preload_path):
 	wb = xlrd.open_workbook(build_plan_path)
@@ -184,7 +224,6 @@ def change_tag_values_common(build_plan_path, preload_path):
 				wb = xw.Book(preload_path)
 				wb.sheets[8].range('C' + str(i+1)).value = v
 
-def change_tag_values_floating_ip(build_plan_path, preload_path):
 	build_plan_ips_values = pd.read_excel(build_plan_path, sheet_name="IP Assignments", usecols = 'C') # fetch values from build plan
 	build_plan_ips_list = build_plan_ips_values.iloc[:, 0].tolist() # convert to list for indexing
 	build_plan_ips_list = [x for x in build_plan_ips_list if str(x) != 'nan']
@@ -235,8 +274,6 @@ def change_tag_values_protected_ip(build_plan_path, preload_path):
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
 	ips = wb.sheet_by_name(sheet_names[2])
-
-
 
 	processing_list = []
 	for i in range(ips.nrows):
@@ -325,16 +362,44 @@ def change_tag_values_protected_ip(build_plan_path, preload_path):
 
 
 
-# main()
 
-build_plan_path = r'C:\Users\rs623u\vnf_changes_june\files\Build_Plan_MRBE_LSA1A_updated.xlsx'
+# main()
+#print("insert build plan path")
+build_plan_path = r'C:\Users\rs623u\vnf_changes_june\builds\Build_Plan_MRBE_LSA1A_updated.xlsx'
 #preload_path = r'C:\Users\rs623u\vnf_changes_june\files\zcccclrsrv01_analyst_template.xlsm'
-preload_path = r'C:\Users\rs623u\vnf_changes_june\files\zcccclrsrv01_qtracelb_template.xlsm'
+# preload_path = r'C:\Users\rs623u\vnf_changes_june\files\zcccclrsrv01_qtracelb_template.xlsm'
+# wb = xw.Book(preload_path)
+# changes_general_vf_module_name(build_plan_path, preload_path)
 # changes_general_common_parameters(build_plan_path, preload_path)
 # changes_networks_common_parameters(build_plan_path, preload_path)
 # changes_availability_zones(build_plan_path, preload_path)
 # change_vm_name(build_plan_path, preload_path)
 # change_vm_network_ips(build_plan_path, preload_path)
 # change_tag_values_common(build_plan_path, preload_path)
-#change_tag_values_floating_ip(build_plan_path, preload_path)
-change_tag_values_protected_ip(build_plan_path, preload_path)
+# #change_tag_values_floating_ip(build_plan_path, preload_path)
+# change_tag_values_protected_ip(build_plan_path, preload_path)
+# wb.save("C:\\Users\\rs623u\\vnf_changes_june\\changed\\" + final_vf_module_name + ".xlsm") 
+# wb.close()
+# select paths
+
+
+preload_list = []
+print("insert path for preloads")
+paths = r'C:\\Users\\rs623u\\vnf_changes_june\\files\\'
+for idx, item in enumerate(os.listdir(paths)):
+	preload_list.append(paths+item)
+
+for preload_path in preload_list:
+	wb = xw.Book(preload_path)
+	changes_general_vf_module_name(build_plan_path, preload_path)
+	changes_general_common_parameters(build_plan_path, preload_path)
+	changes_networks_common_parameters(build_plan_path, preload_path)
+	changes_availability_zones(build_plan_path, preload_path)
+	change_vm_name(build_plan_path, preload_path)
+	change_vm_network_ips(build_plan_path, preload_path)
+	change_tag_values_common(build_plan_path, preload_path)
+	#change_tag_values_floating_ip(build_plan_path, preload_path)
+	change_tag_values_protected_ip(build_plan_path, preload_path)
+	wb.save("C:\\Users\\rs623u\\vnf_changes_june\\changed\\" + final_vf_module_name + ".xlsm") 
+	wb.close()
+
