@@ -17,28 +17,29 @@ from collections import defaultdict
 
 def change_general(preload_path, build_plan_path):
 	global final_vf_module_name
-	# extract vm
+	# find module type
+	# find file number to append
 	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'B')
 	col_B_list_vms = extract_vm.iloc[:, 0].tolist() # Save values of Column B to a list
 	vm_type = col_B_list_vms[-1] # save VM Type
 	#print(vm_type)
-	# extract file number
 	file_name = preload_path[30:]
 	num_append = list(re.findall(r'\d+', file_name))
 	num_append = num_append[-1]
-	#print(num_append)
 
-	# create dict for vm-type : vf-module-name #
+
+	#  dict for vm-type : vf-module-name #
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
+	print(sheet_names)
 	bp = wb.sheet_by_name(u'VNF-Specs')
 
+	print(vm_type)
 	vf_module_name_dict = {}
 	for i in range(5, bp.nrows):
-		vm_type = bp.cell_value(i, 1)
-		modules = bp.cell_value(i, 6)
-		vf_module_name_dict[vm_type] = modules
-	#print(vf_module_name_dict)
+		vm = bp.cell_value(i, 1)
+		modules = bp.cell_value(i, 7)
+		vf_module_name_dict[vm] = modules
 
 	# create dict for vm-type : vf-module-model-name #
 
@@ -48,9 +49,9 @@ def change_general(preload_path, build_plan_path):
 
 	vf_module_model_name_dict = {}
 	for i in range(5, bp.nrows):
-		vm_type = bp.cell_value(i, 1)
+		vm = bp.cell_value(i, 1)
 		modules_model = bp.cell_value(i, 5)
-		vf_module_model_name_dict[vm_type] = modules_model
+		vf_module_model_name_dict[vm] = modules_model
 	#print(vf_module_model_name_dict)
 
 	# create dict for vm-type : vnf_name #
@@ -61,18 +62,18 @@ def change_general(preload_path, build_plan_path):
 
 	vnf_name_dict = {}
 	for i in range(5, bp.nrows):
-		vm_type = bp.cell_value(i, 1)
-		vnf_name = bp.cell_value(i, 7)
-		vnf_name_dict[vm_type] = vnf_name
+		vm = bp.cell_value(i, 1)
+		vnf_name = bp.cell_value(i, 8)
+		vnf_name_dict[vm] = vnf_name
 	#print(vnf_name_dict)
 
 	# create dict for vm-type : vnf_type #
 
 	vnf_type_dict = {}
 	for i in range(5, bp.nrows):
-		vm_type = bp.cell_value(i, 1)
+		vm = bp.cell_value(i, 1)
 		vnf_type = bp.cell_value(i, 4)
-		vnf_type_dict[vm_type] = vnf_type
+		vnf_type_dict[vm] = vnf_type
 	#print(vnf_type_dict)
 
 	# update vf-module-name
@@ -89,7 +90,7 @@ def change_general(preload_path, build_plan_path):
 	for k, v in vf_module_model_name_dict.items():
 		if k == vm_type:
 			#print(v+num_append)
-			wb.sheets[1].range('C8').value = v+num_append # proper name
+			wb.sheets[1].range('C8').value = v # proper name
 
 	# update vnf-name
 
@@ -97,7 +98,7 @@ def change_general(preload_path, build_plan_path):
 	for k, v in vnf_name_dict.items():
 		if k == vm_type:
 			#print(v+num_append)
-			wb.sheets[1].range('C12').value = v+num_append # proper name
+			wb.sheets[1].range('C12').value = v # proper name
 
 	# update vnf-type
 
@@ -105,32 +106,59 @@ def change_general(preload_path, build_plan_path):
 	for k, v in vnf_type_dict.items():
 		if k == vm_type:
 			#print(v+num_append)
-			wb.sheets[1].range('C13').value = v+num_append # proper name
+			wb.sheets[1].range('C13').value = v # proper name
 
 	final_vf_module_name = wb.sheets[1].range('C6').value
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # def change_az(preload_path, build_plan_path):
 
-# def change_networks(preload_path, build_plan_path):
+def change_networks(preload_path, build_plan_path):
+	wb = xlrd.open_workbook(build_plan_path)
+	sheet_names = wb.sheet_names()
+	print(sheet_names)
+	bp = wb.sheet_by_name(u'Networks')
+
+	net_dict = {}
+	for i in range(5, bp.nrows):
+		network_role = bp.cell_value(i, 1)
+		network_name = bp.cell_value(i, 5)
+		net_dict[network_role] = network_name
+
+	wb = xlrd.open_workbook(preload_path)
+	sheet_names = wb.sheet_names()
+	networks_sheet = wb.sheet_by_name(u'Networks')
+
+	for k, v in net_dict.items():
+		for i in range(networks_sheet.nrows):
+			if(networks_sheet.cell_value(i, 1) == k and k != ''):
+				wb = xw.Book(preload_path)
+				wb.sheets[3].range('C' + str(i+1)).value = v
 
 # def change_vms(preload_path, build_plan_path):
 
-# def change_tag(preload_path, build_plan_path):
+def change_tag(preload_path, build_plan_path):
+	wb = xlrd.open_workbook(build_plan_path)
+	sheet_names = wb.sheet_names()
+	bp = wb.sheet_by_name(u'Common Parameters')
+
+	tag_dict = {}
+	for i in range(13, bp.nrows):
+		par = bp.cell_value(i, 0)
+		val = bp.cell_value(i, 1)
+		tag_dict[par] = val
+
+	wb = xlrd.open_workbook(preload_path)
+	sheet_names = wb.sheet_names()
+	tag_sheet = wb.sheet_by_name(u'Tag-values')
+
+	for k, v in tag_dict.items():
+		for i in range(tag_sheet.nrows):
+			if(tag_sheet.cell_value(i, 1) == k and k != ''):
+				wb = xw.Book(preload_path)
+				wb.sheets[8].range('C' + str(i+1)).value = v
 
 preload_path = r"C:\Users\rs623u\aic_changes\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
 build_plan_path = r"C:\Users\rs623u\aic_changes\data\RDM52e_Automation_Build_Plan-v0.6.xlsx"
-change_general(preload_path, build_plan_path)
+#change_general(preload_path, build_plan_path)
+#change_networks(preload_path, build_plan_path)
+change_tag(preload_path, build_plan_path)
