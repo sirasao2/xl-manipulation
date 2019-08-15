@@ -31,10 +31,8 @@ def change_general(preload_path, build_plan_path):
 	#  dict for vm-type : vf-module-name #
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
-	print(sheet_names)
 	bp = wb.sheet_by_name(u'VNF-Specs')
 
-	print(vm_type)
 	vf_module_name_dict = {}
 	for i in range(5, bp.nrows):
 		vm = bp.cell_value(i, 1)
@@ -115,7 +113,7 @@ def change_general(preload_path, build_plan_path):
 def change_networks(preload_path, build_plan_path):
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
-	print(sheet_names)
+	#print(sheet_names)
 	bp = wb.sheet_by_name(u'Networks')
 
 	net_dict = {}
@@ -157,8 +155,53 @@ def change_tag(preload_path, build_plan_path):
 				wb = xw.Book(preload_path)
 				wb.sheets[8].range('C' + str(i+1)).value = v
 
-preload_path = r"C:\Users\rs623u\aic_changes\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
+def change_vm(preload_path, build_plan_path):
+	file_name = preload_path[30:]
+	num_append = list(re.findall(r'\d+', file_name))
+	num_append = num_append[-1]
+	wb = xw.Book(preload_path)
+	vnf_name_general = wb.sheets[1].range('C12').value
+	vm_name_replace = vnf_name_general + "upt0" + num_append
+	#print(vm_name_replace)
+	wb = xw.Book(preload_path)
+	wb.sheets[4].range('C7').value = vm_name_replace
+
+def change_az(preload_path, build_plan_path):
+	wb = xw.Book(preload_path)
+	vm_name_value = wb.sheets[4].range('C7').value
+	#print(vm_name_value)
+
+	wb = xlrd.open_workbook(build_plan_path)
+	sheet_names = wb.sheet_names()
+	bp = wb.sheet_by_name(u'VM-Layout')
+
+	az_dict = {}
+	for i in range(5, bp.nrows):
+		vm_names = bp.cell_value(i, 6)
+		az = bp.cell_value(i, 7)
+		az_dict[vm_names] = az
+	for k, v in az_dict.items():
+		if k == vm_name_value and k != '':
+			wb = xw.Book(preload_path)
+			wb.sheets[2].range('B6').value = v
+
+
+#preload_path = r"C:\Users\rs623u\aic_changes\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
 build_plan_path = r"C:\Users\rs623u\aic_changes\data\RDM52e_Automation_Build_Plan-v0.6.xlsx"
-#change_general(preload_path, build_plan_path)
-#change_networks(preload_path, build_plan_path)
-change_tag(preload_path, build_plan_path)
+
+preload_list = []
+#print("insert path for preloads")
+paths = r"C:\\Users\\rs623u\\aic_changes\\preloads\\"
+for idx, item in enumerate(os.listdir(paths)):
+	preload_list.append(paths+item)
+
+for preload_path in preload_list:
+	if "base" not in preload_path:
+		wb = xw.Book(preload_path)
+		change_general(preload_path, build_plan_path)
+		change_networks(preload_path, build_plan_path)
+		change_tag(preload_path, build_plan_path)
+		change_vm(preload_path, build_plan_path)
+		change_az(preload_path, build_plan_path)
+		wb.save(r"C:\\Users\\rs623u\\aic_changes\\changed\\" + final_vf_module_name + ".xlsm")
+		wb.close()
