@@ -187,13 +187,21 @@ def change_az(preload_path, build_plan_path):
 
 
 #preload_path = r"C:\Users\rs623u\aic_changes\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
-build_plan_path = r"C:\Users\rs623u\aic_changes\data\RDM52e_Automation_Build_Plan-v0.6.xlsx"
+print("Hello [uid].")
+print("Please input entire path to the build plan:")
+build_plan_path = input()
+#build_plan_path = r"C:\Users\rs623u\aic_changes\data\RDM52e_Automation_Build_Plan-v0.6.xlsx"
 
 preload_list = []
-#print("insert path for preloads")
-paths = r"C:\\Users\\rs623u\\aic_changes\\preloads\\"
+print("Please insert path to folder containing preloads:")
+paths = input()
+#paths = r"C:\\Users\\rs623u\\aic_changes\\preloads\\"
 for idx, item in enumerate(os.listdir(paths)):
 	preload_list.append(paths+item)
+
+print("Please enter destination folder for output:")
+dest_folder = input()
+
 
 for preload_path in preload_list:
 	if "base" not in preload_path:
@@ -203,5 +211,11 @@ for preload_path in preload_list:
 		change_tag(preload_path, build_plan_path)
 		change_vm(preload_path, build_plan_path)
 		change_az(preload_path, build_plan_path)
-		wb.save(r"C:\\Users\\rs623u\\aic_changes\\changed\\" + final_vf_module_name + ".xlsm")
+		#wb.save(r"C:\\Users\\rs623u\\aic_changes\\changed\\" + final_vf_module_name + ".xlsm")
+		wb.save(dest_folder + final_vf_module_name + ".xlsm")
 		wb.close()
+
+# PASTE TESTING
+#     C:\Users\rs623u\aic_changes\data\RDM52e_Automation_Build_Plan-v0.6.xlsx
+#     C:\Users\rs623u\aic_changes\preloads\
+#     C:\Users\rs623u\aic_changes\changed\
