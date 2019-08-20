@@ -177,8 +177,8 @@ def change_az(preload_path, build_plan_path):
 
 	az_dict = {}
 	for i in range(5, bp.nrows):
-		vm_names = bp.cell_value(i, 6)
-		az = bp.cell_value(i, 7)
+		vm_names = bp.cell_value(i, 7)
+		az = bp.cell_value(i, 8)
 		az_dict[vm_names] = az
 	for k, v in az_dict.items():
 		if k == vm_name_value and k != '':
@@ -187,21 +187,32 @@ def change_az(preload_path, build_plan_path):
 
 
 #preload_path = r"C:\Users\rs623u\aic_changes\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
-print("Hello [uid].")
-print("Please input entire path to the build plan:")
-build_plan_path = input()
+print("Hello!")
+
+build_plan_path = input("Please input entire path to the build plan:\n")
+while(build_plan_path == ""):
+	build_plan_path = input("Please input entire path to the build plan:\n")
+
+
+
+
 #build_plan_path = r"C:\Users\rs623u\aic_changes\data\RDM52e_Automation_Build_Plan-v0.6.xlsx"
 
 preload_list = []
-print("Please insert path to folder containing preloads:")
-paths = input()
+
+paths = input("Please input path to folder containing the preload templates:\n")
+while(paths == ""):
+	paths = input("Please input path to folder containing the preload templates:\n")
+
+
 #paths = r"C:\\Users\\rs623u\\aic_changes\\preloads\\"
 for idx, item in enumerate(os.listdir(paths)):
 	preload_list.append(paths+item)
 
-print("Please enter destination folder for output:")
-dest_folder = input()
 
+dest_folder = input("Please enter path to the destination folder for output:\n")
+while(dest_folder == ""):
+	dest_folder = input("Please enter path to the destination folder for output:\n")
 
 for preload_path in preload_list:
 	if "base" not in preload_path:
@@ -216,6 +227,6 @@ for preload_path in preload_list:
 		wb.close()
 
 # PASTE TESTING
-#     C:\Users\rs623u\aic_changes\data\RDM52e_Automation_Build_Plan-v0.6.xlsx
-#     C:\Users\rs623u\aic_changes\preloads\
-#     C:\Users\rs623u\aic_changes\changed\
+#     C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.7.xlsx
+#     C:\Users\rs623u\automation\preloads\
+#     C:\Users\rs623u\automation\changed\
