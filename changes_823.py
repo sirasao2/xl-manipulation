@@ -38,8 +38,8 @@ def change_general(preload_path, build_plan_path):
 
 	vf_module_name_dict = {}
 	for i in range(5, bp.nrows):
-		vm = bp.cell_value(i, 1)
-		modules = bp.cell_value(i, 7)
+		vm = bp.cell_value(i, 2)
+		modules = bp.cell_value(i, 8)
 		vf_module_name_dict[vm] = modules
 
 	# create dict for vm-type : vf-module-model-name #
@@ -50,8 +50,8 @@ def change_general(preload_path, build_plan_path):
 
 	vf_module_model_name_dict = {}
 	for i in range(5, bp.nrows):
-		vm = bp.cell_value(i, 1)
-		modules_model = bp.cell_value(i, 5)
+		vm = bp.cell_value(i, 2)
+		modules_model = bp.cell_value(i, 6)
 		vf_module_model_name_dict[vm] = modules_model
 	#print(vf_module_model_name_dict)
 
@@ -63,8 +63,8 @@ def change_general(preload_path, build_plan_path):
 
 	vnf_name_dict = {}
 	for i in range(5, bp.nrows):
-		vm = bp.cell_value(i, 1)
-		vnf_name = bp.cell_value(i, 8)
+		vm = bp.cell_value(i, 2)
+		vnf_name = bp.cell_value(i, 9)
 		vnf_name_dict[vm] = vnf_name
 	#print(vnf_name_dict)
 
@@ -72,8 +72,8 @@ def change_general(preload_path, build_plan_path):
 
 	vnf_type_dict = {}
 	for i in range(5, bp.nrows):
-		vm = bp.cell_value(i, 1)
-		vnf_type = bp.cell_value(i, 4)
+		vm = bp.cell_value(i, 2)
+		vnf_type = bp.cell_value(i, 5)
 		vnf_type_dict[vm] = vnf_type
 	#print(vnf_type_dict)
 
@@ -164,7 +164,7 @@ def change_vm(preload_path, build_plan_path):
 	num_append = num_append[-1]
 	wb = xw.Book(preload_path)
 	vnf_name_general = wb.sheets[1].range('C12').value
-	vm_name_replace = vnf_name_general + "upt0" + num_append
+	vm_name_replace = vnf_name_general + "upt00" + num_append
 	#print(vm_name_replace)
 	wb = xw.Book(preload_path)
 	wb.sheets[4].range('C7').value = vm_name_replace
@@ -238,51 +238,124 @@ def tag_sheet_indexes(preload_path, build_plan_path):
 			wb = xw.Book(preload_path)
 			wb.sheets[8].range('C' + str(i+1)).value = str(num_append)
 
+def change_ips(preload_path, build_plan_path):
+	wb = xw.Book(preload_path)
+	vm_name_value = wb.sheets[4].range('C7').value
+	print(vm_name_value)
+
+	wb = xlrd.open_workbook(build_plan_path)
+	sheet_names = wb.sheet_names()
+	bp = wb.sheet_by_name(u'VM-Layout')
+
+	pkt0_dict = {}
+	for i in range(5, bp.nrows):
+		vm_name = bp.cell_value(i, 6)
+		pk0_ip = bp.cell_value(i, 9)
+		pkt0_dict[vm_name] = pk0_ip
+	#print(pkt0_dict)
+
+	pkt1_dict = {}
+	for i in range(5, bp.nrows):
+		vm_name = bp.cell_value(i, 6)
+		pk1_ip = bp.cell_value(i, 10)
+		pkt1_dict[vm_name] = pk1_ip
+	#print(pkt1_dict)
+	
+	cdr_direct_dict = {}
+	for i in range(5, bp.nrows):
+		vm_name = bp.cell_value(i, 6)
+		cdr = bp.cell_value(i, 11)
+		cdr_direct_dict[vm_name] = cdr
+	#print(cdr_direct_dict)
+
+	vfl_dict = {}
+	for i in range(5, bp.nrows):
+		vm_name = bp.cell_value(i, 6)
+		vfl = bp.cell_value(i, 12)
+		vfl_dict[vm_name] = vfl
+	#print(vfl_dict)
+
+	ip_dict = {"pktinternal_0_ip" : pkt0_dict , "pktinternal_1_ip" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "vfl_pktinternal_0_ip" :  vfl_dict}
+	
+	# print(ip_dict)
+	# print("\n")
+
+	# for k, v in ip_dict.items():
+ #   		for k1, v1 in v.items():
+ #   			print("k1", k1)
+ #   			print("v1", v1)
+	
+	wb = xlrd.open_workbook(preload_path)
+	sheet_names = wb.sheet_names()
+	tag_sheet = wb.sheet_by_name(u'Tag-values')
+
+	for i in range(tag_sheet.nrows):
+		for k, v in ip_dict.items():
+			if k in tag_sheet.cell_value(i, 1) and k != "":
+				for k1, v1 in v.items():
+					if k1 == vm_name_value:
+						wb = xw.Book(preload_path)
+						wb.sheets[8].range('C' + str(i+1)).value = v1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #preload_path = r"C:\Users\rs623u\aic_changes\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
-print("Hello!")
+#print("Hello!")
 
-# build_plan_path = r"C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan_v0.7.xlsx"
-# preload_path = r"C:\Users\rs623u\automation\vpms_pl\zrdm52erlba01_lba_21.xlsm"
+build_plan_path = r"C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx"
+preload_path = r"C:\Users\rs623u\automation\preloads\pltemplate_rprb01_prb_1.xlsm"
 
-build_plan_path = input("Please input entire path to the build plan:\n")
-while(build_plan_path == ""):
-	build_plan_path = input("Please input entire path to the build plan:\n")
+# build_plan_path = input("Please input entire path to the build plan:\n")
+# while(build_plan_path == ""):
+# 	build_plan_path = input("Please input entire path to the build plan:\n")
 
-preload_list = []
+# preload_list = []
 
-paths = input("Please input path to folder containing the preload templates:\n")
-while(paths == ""):
-	paths = input("Please input path to folder containing the preload templates:\n")
+# paths = input("Please input path to folder containing the preload templates:\n")
+# while(paths == ""):
+# 	paths = input("Please input path to folder containing the preload templates:\n")
 
 
-#paths = r"C:\\Users\\rs623u\\aic_changes\\preloads\\"
-for idx, item in enumerate(os.listdir(paths)):
-	preload_list.append(paths+item)
+# #paths = r"C:\\Users\\rs623u\\aic_changes\\preloads\\"
+# for idx, item in enumerate(os.listdir(paths)):
+# 	preload_list.append(paths+item)
 
-dest_folder = input("Please enter path to the destination folder for output:\n")
-while(dest_folder == ""):
-	dest_folder = input("Please enter path to the destination folder for output:\n")
+# dest_folder = input("Please enter path to the destination folder for output:\n")
+# while(dest_folder == ""):
+# 	dest_folder = input("Please enter path to the destination folder for output:\n")
 
-for preload_path in preload_list:
-	if "base" not in preload_path:
-		try:
-			wb = xw.Book(preload_path)
-			change_general(preload_path, build_plan_path)
-			change_networks(preload_path, build_plan_path)
-			change_tag(preload_path, build_plan_path)
-			change_vm(preload_path, build_plan_path)
-			change_az(preload_path, build_plan_path)
-			names_tag_sheet(preload_path, build_plan_path)
-			tag_sheet_indexes(preload_path, build_plan_path)
-			wb.save(r"C:\\Users\\rs623u\\aic_changes\\changed\\" + final_vf_module_name + ".xlsm")
-			wb.save(dest_folder + final_vf_module_name + ".xlsm")
-			wb.close()
-		except:
-			pass
+# for preload_path in preload_list:
+# 	if "base" not in preload_path:
+
+wb = xw.Book(preload_path)
+change_general(preload_path, build_plan_path)
+change_networks(preload_path, build_plan_path)
+change_tag(preload_path, build_plan_path)
+change_vm(preload_path, build_plan_path)
+	# change_az(preload_path, build_plan_path)
+	# names_tag_sheet(preload_path, build_plan_path)
+	# tag_sheet_indexes(preload_path, build_plan_path)
+change_ips(preload_path, build_plan_path)
+	# wb.save(r"C:\\Users\\rs623u\\aic_changes\\changed\\" + final_vf_module_name + ".xlsm")
+	# wb.save(dest_folder + final_vf_module_name + ".xlsm")
+	# wb.close()
+wb.save()
 
 # PASTE TESTING
 #     C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan_v0.7.xlsx
 #     C:\Users\rs623u\automation\preloads\
+#     C:\Users\rs623u\automation\vpms_pl\
 #     C:\Users\rs623u\automation\changed\
 
 # C:\Users\rs623u\automation\preloads\pltemplate_rprb01_prb_1.xlsm
