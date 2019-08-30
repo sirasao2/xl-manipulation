@@ -256,6 +256,10 @@ def names_tag_sheet(preload_path, build_plan_path):
 		if "lba" in bp.cell_value(i, 6):
 			lba_list.append(bp.cell_value(i, 6))
 
+	prb_list = ('[%s]' % ', '.join(map(str, prb_list)))
+	qrt_list = ('[%s]' % ', '.join(map(str, qrt_list)))
+	lba_list = ('[%s]' % ', '.join(map(str, lba_list)))
+
 	names_dict = {"vlbagent_eph" : lba_list, "vprb" : prb_list, "qrouter" : qrt_list}
 	#print(names_dict)
 
@@ -366,8 +370,6 @@ paths = input("Please input path to folder containing the preload templates:\n")
 while(paths == ""):
 	paths = input("Please input path to folder containing the preload templates:\n")
 
-
-paths = r"C:\\Users\\rs623u\\aic_changes\\preloads\\"
 for idx, item in enumerate(os.listdir(paths)):
 	preload_list.append(paths+item)
 
