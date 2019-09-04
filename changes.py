@@ -126,7 +126,7 @@ def change_general(preload_path, build_plan_path, count):
 			if int(count) < 10:
 				wb.sheets[1].range('C6').value = v + "0" + count # proper name # SUFFIX
 			else:
-				wb.sheets[1].range('C6').value = v + "0" + count
+				wb.sheets[1].range('C6').value = v + count
 
 
 	# update vf-module-model
@@ -353,12 +353,7 @@ def change_ips(preload_path, build_plan_path):
 						wb.sheets[8].range('C' + str(i+1)).value = v1
 
 
-#preload_path = r"C:\Users\rs623u\aic_changes\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
 print("Hello!")
-
-#build_plan_path = r"C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx"
-#preload_path = r"C:\Users\rs623u\automation\preloads\pltemplate_rprb01_prb_1.xlsm"
-#preload_path = r"C:\Users\rs623u\aic_changes\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
 
 build_plan_path = input("Please input entire path to the build plan:\n")
 while(build_plan_path == ""):
@@ -377,21 +372,6 @@ dest_folder = input("Please enter path to the destination folder for output:\n")
 while(dest_folder == ""):
 	dest_folder = input("Please enter path to the destination folder for output:\n")
 
-# for preload_path in preload_list:
-# 	if "base" not in preload_path:
-# wb = xw.Book(preload_path)
-# change_general(preload_path, build_plan_path)
-# change_networks(preload_path, build_plan_path)
-# change_tag(preload_path, build_plan_path)
-# change_vm(preload_path, build_plan_path)
-# change_az(preload_path, build_plan_path)
-# names_tag_sheet(preload_path, build_plan_path)
-# tag_sheet_indexes(preload_path, build_plan_path)
-# change_ips(preload_path, build_plan_path)
-		# wb.save(dest_folder + final_vf_module_name + ".xlsm")
-		#wb.close()
-
-#dest_folder = r"C:\\Users\\rs623u\\automation\\changed\\"
 
 for preload_path in preload_list:
 	if "base" not in preload_path:
@@ -407,18 +387,17 @@ for preload_path in preload_list:
 				names_tag_sheet(preload_path, build_plan_path)
 				tag_sheet_indexes(preload_path, build_plan_path, str(titles))
 				change_ips(preload_path, build_plan_path)
-				wb.save(dest_folder + title_list[titles] + "0" + str(titles+1) + ".xlsm")
+				if titles < 9:
+					wb.save(dest_folder + title_list[titles] + "0" + str(titles+1) + ".xlsm")
+				else:
+					wb.save(dest_folder + title_list[titles] + str(titles+1) + ".xlsm")
 				wb.close()
-
-
-
 
 
 # PASTE TESTING
 #     C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx
 #     C:\Users\rs623u\automation\preloads\
-#     C:\Users\rs623u\automation\vpms_pl\
-#     C:\\Users\rs623u\automation\changed\
+#     C:\Users\rs623u\automation\changed\
 #     
 
 # C:\Users\rs623u\automation\preloads\pltemplate_rprb01_prb_1.xlsm
