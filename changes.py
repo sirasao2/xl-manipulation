@@ -48,10 +48,9 @@ def calculate_vm_count(build_plan_path):
 
 	title_list = []
 	for k, v in vfmm_dict.items():
-		for i in range(1, vm_count):
+		for i in range(1, vm_count+1):
 			if k != '' and k == vm_type:
 				title_list.append(v)
-	#print(title_list)
 
 def change_general(preload_path, build_plan_path, count):
 	# file_name = preload_path[30:]
@@ -358,12 +357,14 @@ print("Hello!")
 build_plan_path = input("Please input entire path to the build plan:\n")
 while(build_plan_path == ""):
 	build_plan_path = input("Please input entire path to the build plan:\n")
+	#build_plan_path = r"C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx"
 
 preload_list = []
 
 paths = input("Please input path to folder containing the preload templates:\n")
 while(paths == ""):
 	paths = input("Please input path to folder containing the preload templates:\n")
+	#paths = r"C:\\Users\\rs623u\\automation\\preloads\\"
 
 for idx, item in enumerate(os.listdir(paths)):
 	preload_list.append(paths+item)
@@ -371,33 +372,33 @@ for idx, item in enumerate(os.listdir(paths)):
 dest_folder = input("Please enter path to the destination folder for output:\n")
 while(dest_folder == ""):
 	dest_folder = input("Please enter path to the destination folder for output:\n")
-
+	#dest_folder = r"C:\\Users\\rs623u\\automation\\changed\\"
 
 for preload_path in preload_list:
 	if "base" not in preload_path:
 		calculate_vm_count(build_plan_path)
-		for count in range(1, vm_count+1):
-			for titles in range(0, len(title_list)):
-				wb = xw.Book(preload_path)
-				change_general(preload_path, build_plan_path, str(titles + 1))
-				change_networks(preload_path, build_plan_path)
-				change_tag(preload_path, build_plan_path)
-				change_vm(preload_path, build_plan_path, str(titles + 1))
-				change_az(preload_path, build_plan_path)
-				names_tag_sheet(preload_path, build_plan_path)
-				tag_sheet_indexes(preload_path, build_plan_path, str(titles))
-				change_ips(preload_path, build_plan_path)
-				if titles < 9:
-					wb.save(dest_folder + title_list[titles] + "0" + str(titles+1) + ".xlsm")
-				else:
-					wb.save(dest_folder + title_list[titles] + str(titles+1) + ".xlsm")
-				wb.close()
+		# for count in range(1, vm_count+1):
+		for titles in range(0, len(title_list)):
+			wb = xw.Book(preload_path)
+			change_general(preload_path, build_plan_path, str(titles + 1))
+			change_networks(preload_path, build_plan_path)
+			change_tag(preload_path, build_plan_path)
+			change_vm(preload_path, build_plan_path, str(titles + 1))
+			change_az(preload_path, build_plan_path)
+			names_tag_sheet(preload_path, build_plan_path)
+			tag_sheet_indexes(preload_path, build_plan_path, str(titles))
+			change_ips(preload_path, build_plan_path)
+			if titles < 9:
+				wb.save(dest_folder + title_list[titles] + "0" + str(titles+1) + ".xlsm")
+			else:
+				wb.save(dest_folder + title_list[titles] + str(titles+1) + ".xlsm")
+			wb.close()
 
 
 # PASTE TESTING
-#     C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx
-#     C:\Users\rs623u\automation\preloads\
-#     C:\Users\rs623u\automation\changed\
+# C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx
+# C:\Users\rs623u\automation\preloads\
+# C:\Users\rs623u\automation\changed\
 #     
 
 # C:\Users\rs623u\automation\preloads\pltemplate_rprb01_prb_1.xlsm
