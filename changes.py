@@ -371,8 +371,8 @@ for idx, item in enumerate(os.listdir(paths)):
 
 dest_folder = input("Please enter path to the destination folder for output:\n")
 while(dest_folder == ""):
-	dest_folder = input("Please enter path to the destination folder for output:\n")
-	#dest_folder = r"C:\\Users\\rs623u\\automation\\changed\\"
+	#dest_folder = input("Please enter path to the destination folder for output:\n")
+	dest_folder = r"C:\\Users\\rs623u\\automation\\changed\\"
 
 for preload_path in preload_list:
 	if "base" not in preload_path:
@@ -399,7 +399,11 @@ for preload_path in preload_list:
 # C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx
 # C:\Users\rs623u\automation\preloads\
 # C:\Users\rs623u\automation\changed\
-#     
-
+# #     
+# Please input entire path to the build plan:
+# C:\Users\rs623u\automation\data\WHP3a_Automation_Template_v1.xlsx
+# Please input path to folder containing the preload templates:
+# C:\Users\rs623u\automation\Tran_Input\
+# Please enter path to the destination folder for output:
 # C:\Users\rs623u\automation\preloads\pltemplate_rprb01_prb_1.xlsm
 #wb.save(r"C:\\Users\\rs623u\\aic_changes\\changed\\" + final_vf_module_name + ".xlsm")
