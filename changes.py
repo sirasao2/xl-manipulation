@@ -255,9 +255,10 @@ def names_tag_sheet(preload_path, build_plan_path):
 		if "lba" in bp.cell_value(i, 6):
 			lba_list.append(bp.cell_value(i, 6))
 
-	prb_list = ('[%s]' % ', '.join(map(str, prb_list)))
-	qrt_list = ('[%s]' % ', '.join(map(str, qrt_list)))
-	lba_list = ('[%s]' % ', '.join(map(str, lba_list)))
+
+	prb_list = ('[%s]' % ','.join(map(str, prb_list)))[1:-1]
+	qrt_list = ('[%s]' % ','.join(map(str, qrt_list)))[1:-1]
+	lba_list = ('[%s]' % ','.join(map(str, lba_list)))[1:-1]
 
 	names_dict = {"vlbagent_eph" : lba_list, "vprb" : prb_list, "qrouter" : qrt_list}
 	#print(names_dict)
@@ -357,27 +358,27 @@ print("Hello!")
 build_plan_path = input("Please input entire path to the build plan:\n")
 while(build_plan_path == ""):
 	build_plan_path = input("Please input entire path to the build plan:\n")
-	#build_plan_path = r"C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx"
+#build_plan_path = r"C:\Users\rs623u\automation\data\RDM52e_Automation_Build_Plan-v0.9.xlsx"
 
 preload_list = []
 
 paths = input("Please input path to folder containing the preload templates:\n")
 while(paths == ""):
 	paths = input("Please input path to folder containing the preload templates:\n")
-	#paths = r"C:\\Users\\rs623u\\automation\\preloads\\"
+	paths = r"C:\\Users\\rs623u\\automation\\preloads\\"
+#preload_path = r"C:\Users\rs623u\automation\preloads\pltemplate_rlba01_lba_01_delete.xlsm"
 
 for idx, item in enumerate(os.listdir(paths)):
 	preload_list.append(paths+item)
 
 dest_folder = input("Please enter path to the destination folder for output:\n")
 while(dest_folder == ""):
-	#dest_folder = input("Please enter path to the destination folder for output:\n")
-	dest_folder = r"C:\\Users\\rs623u\\automation\\changed\\"
+	dest_folder = input("Please enter path to the destination folder for output:\n")
+	#dest_folder = r"C:\\Users\\rs623u\\automation\\changed\\"
 
 for preload_path in preload_list:
 	if "base" not in preload_path:
 		calculate_vm_count(build_plan_path)
-		# for count in range(1, vm_count+1):
 		for titles in range(0, len(title_list)):
 			wb = xw.Book(preload_path)
 			change_general(preload_path, build_plan_path, str(titles + 1))
