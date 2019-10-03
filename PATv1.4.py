@@ -16,25 +16,32 @@ import re
 from collections import defaultdict
 
 def calculate_vm_count(build_plan_path):
+	"""
+	This function:
+		- gathers the "# of VM's" per VM type for file generation 
+		- creates list of properly named titles for final output folder based off of each vm-types vf-module-name
+		- used for function calls at the end of the program
+	"""
 	global final_vf_module_name
 	global title_list
-	# find module type
-	# find file number to append
+	# find vm-type of current file
 	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'B')
 	col_B_list_vms = extract_vm.iloc[:, 0].tolist() # Save values of Column B to a list
-	vm_type = col_B_list_vms[-1] # save VM Type
+	vm_type = col_B_list_vms[-1] # save VM Type as a variable
 
-	# set vm count
+	# set variable to hold vm count
 	global vm_count
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
 	bp = wb.sheet_by_name(u'VNF-Specs')
 
-	# ['VM Name', 'vm-type', 'nf_naming_code\n(VVVV)', 'VNF Type \n(tt)', 'nfc_naming_code \n(pppp)', "# of VM's", 'vnf-type', 'vf-module-model-name', 'vf-module-model-name-base', 'vf-module-name', 'vnf-name', 'Flavor Name', 'Cinder Volume Size', 'Image Name', 'security_group_name']
+	# string search VNF-Specs column headers and assign each columns reference position (int) to a variable
+	# this avoids hard coding the position of certain columns
+	# order does not matter
 	col_names = []
-	for cols in bp.row(4):
+	for cols in bp.row(4): # 0 indexed, gives all column names from row 5
 		col_names.append(cols.value)
-	#print(col_names)
 	for col_num in range(0, len(col_names)):
 		if col_names[col_num] == "vm-type":
 			col_ref_vmt = col_num
@@ -43,43 +50,52 @@ def calculate_vm_count(build_plan_path):
 		if col_names[col_num] == "vf-module-name":
 			col_ref_vfmn = col_num
 
+	# create dict of vm-type and each vm-types VM Count
 	count_dict = {}
 	for i in range(5, bp.nrows):
 		vm = bp.cell_value(i, col_ref_vmt)
 		count = bp.cell_value(i, col_ref_vmc)
 		count_dict[vm] = count
 
+	# cast as integer as it is pulled as a string
 	for k, v in count_dict.items():
 		if k != '' and k == vm_type:
 			vm_count = (int(v))
 
+	# create dictionary of vm-names and vfmn for title generation  
 	vfmn_dict = {}
 	for i in range(5, bp.nrows):
 		vm = bp.cell_value(i, col_ref_vmt)
 		vfmn = bp.cell_value(i, col_ref_vfmn)
 		vfmn_dict[vm] = vfmn
 
+	# give the titles based on which vm-type the current file is
 	title_list = []
 	for k, v in vfmn_dict.items():
 		for i in range(1, vm_count+1):
 			if k != '' and k == vm_type:
 				title_list.append(v)
-	#print(title_list)
 
 def change_general(preload_path, build_plan_path, count):
+	"""
+	This function:
+		- initiates changes for General tab in preload template
+	"""
 	# find module type
-	# find file number to append
 	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'B')
 	col_B_list_vms = extract_vm.iloc[:, 0].tolist() # Save values of Column B to a list
 	vm_type = col_B_list_vms[-1] # save VM Type
 
-	#  dict for vm-type : vf-module-name #
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
 	bp = wb.sheet_by_name(u'VNF-Specs')
 
+	# string search VNF-Specs column headers and assign each columns reference position (int) to a variable
+	# this avoids hard coding the position of certain columns
+	# order does not matter
 	col_names = []
-	for cols in bp.row(4):
+	for cols in bp.row(4): # 0 indexed, gives all column names from row 5
 		col_names.append(cols.value)
 	for col_num in range(0, len(col_names)):
 		if col_names[col_num] == "vm-type":
@@ -95,35 +111,28 @@ def change_general(preload_path, build_plan_path, count):
 		if col_names[col_num] == "vnf-type":
 			col_ref_vnft = col_num
 
+	# creates dict of vm-types and vf-module-names
 	vf_module_name_dict = {}
 	for i in range(5, bp.nrows):
 		vm = bp.cell_value(i, col_ref_vmt)
 		modules = bp.cell_value(i, col_ref_vfmn)
 		vf_module_name_dict[vm] = modules
 
-	# create dict for vm-type : vf-module-model-name #
-	wb = xlrd.open_workbook(build_plan_path)
-	sheet_names = wb.sheet_names()
-	bp = wb.sheet_by_name(u'VNF-Specs')
-
+	# creates dict of vm-types and vf-module-model-names
 	vf_module_model_name_dict = {}
 	for i in range(5, bp.nrows):
 		vm = bp.cell_value(i, col_ref_vmt)
 		modules_model = bp.cell_value(i, col_ref_vfmmn)
 		vf_module_model_name_dict[vm] = modules_model
 
-	# create dict for vnf-name : vnf_name #
-	wb = xlrd.open_workbook(build_plan_path)
-	sheet_names = wb.sheet_names()
-	bp = wb.sheet_by_name(u'VNF-Specs')
-
+	# creates dict of vm-types and vnf-names
 	vnf_name_dict = {}
 	for i in range(5, bp.nrows):
 		vm = bp.cell_value(i, col_ref_vmt)
 		vnf_name = bp.cell_value(i, col_ref_vnfn)
 		vnf_name_dict[vm] = vnf_name
 
-	# create dict for vm-type : vnf_type #
+	# creates dict of vm-type and vnf-types
 	vnf_type_dict = {}
 	for i in range(5, bp.nrows):
 		vm = bp.cell_value(i, col_ref_vmt)
@@ -134,7 +143,6 @@ def change_general(preload_path, build_plan_path, count):
 	wb = xw.Book(preload_path)
 	for k, v in vf_module_name_dict.items():
 		if k == vm_type:
-			#print(v + "0" + str(number))
 			if int(count) < 10:
 				wb.sheets[1].range('C6').value = v + "0" + count # proper name # SUFFIX
 			else:
@@ -160,44 +168,58 @@ def change_general(preload_path, build_plan_path, count):
 			wb.sheets[1].range('C13').value = v # proper name
 
 def change_networks(preload_path, build_plan_path):
+	"""
+	This function:
+		- initiates changes for Networks information
+	"""
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
-	#print(sheet_names)
 	bp = wb.sheet_by_name(u'Networks')
 
+	# creates dict of network_role and network_name
+	# these column references are hard coded
 	net_dict = {}
 	for i in range(5, bp.nrows):
 		network_role = bp.cell_value(i, 1)
 		network_name = bp.cell_value(i, 5)
 		net_dict[network_role] = network_name
 
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
 	sheet_names = wb.sheet_names()
 	networks_sheet = wb.sheet_by_name(u'Networks')
 
+	# implement changes to template
 	for k, v in net_dict.items():
 		for i in range(networks_sheet.nrows):
 			if(networks_sheet.cell_value(i, 1) == k and k != ''):
 				wb = xw.Book(preload_path)
 				wb.sheets[3].range('C' + str(i+1)).value = v
 
-# def change_vms(preload_path, build_plan_path):
-
 def change_tag(preload_path, build_plan_path):
+	"""
+	This function:
+		- initiates changes for all tag values
+	"""
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
 	bp = wb.sheet_by_name(u'Common Parameters')
 
+	# create dict of parameter name and associated value
 	tag_dict = {}
 	for i in range(13, bp.nrows):
 		par = bp.cell_value(i, 0)
 		val = bp.cell_value(i, 1)
 		tag_dict[par] = val
 
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
 	sheet_names = wb.sheet_names()
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
+	# implement changes to template
 	for k, v in tag_dict.items():
 		for i in range(tag_sheet.nrows):
 			if(tag_sheet.cell_value(i, 1) == k and k != ''):
@@ -205,33 +227,41 @@ def change_tag(preload_path, build_plan_path):
 				wb.sheets[8].range('C' + str(i+1)).value = v
 
 def change_vm(preload_path, build_plan_path, count):
-	# file_name = preload_path[30:]
-	# num_append = list(re.findall(r'\d+', file_name))
-	# #print(num_append)
-	# num_append = num_append[0]
-	# #print(num_append)
-
+	"""
+	This function:
+		- initates changes for VM's tab
+	"""
+	# open workbook and specify which sheet you would like to access
 	wb = xw.Book(preload_path)
+	# grab values for vm-name and calculate appropriate suffix
 	vnf_name_general = wb.sheets[1].range('C12').value
 	if int(count) < 10:
 		vm_name_replace = vnf_name_general + "upt00" + count
 	else:
 		vm_name_replace = vnf_name_general + "upt0" + count
 
-	#print(vm_name_replace)
+	# parse and make replacements
 	wb = xw.Book(preload_path)
 	wb.sheets[4].range('C7').value = vm_name_replace
 
 def change_az(preload_path, build_plan_path):
+	"""
+	This function:
+		- initiates changes for AZ's  
+	"""
+	# open workbook and specify which sheet you would like to access
+	# save vm_name
 	wb = xw.Book(preload_path)
 	vm_name_value = wb.sheets[4].range('C7').value
-	#print(vm_name_value)
 
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
 	bp = wb.sheet_by_name(u'VM-Layout')
 
-	# ame', 'vm-type', 'nf_naming_code\n(VF Level) VVVV Code', 'VNF Type (tt)', 'VFC ID (ppp)', 'VM Instance #', 'vm-name', 'AZ:Compute', 'ext_pktinternal_ip', 'pktinternal_0_ip', 'pktinternal_1_ip', 'cdr_direct_bond_ip', 'vfl_pktinternal_0_ip']
+	# string search VM-Layout column headers and assign each columns reference position (int) to a variable
+	# this avoids hard coding the position of certain columns
+	# order does not matter
 	col_names = []
 	for cols in bp.row(4):
 		col_names.append(cols.value)
@@ -241,23 +271,32 @@ def change_az(preload_path, build_plan_path):
 		if col_names[col_num] == "AZ:Compute":
 			col_ref_azc = col_num
 
+	# creates dict of vm_names and az's
 	az_dict = {}
 	for i in range(5, bp.nrows):
 		vm_names = bp.cell_value(i, col_ref_vmn)
 		az = bp.cell_value(i, col_ref_azc)
 		az_dict[vm_names] = az
 
+	# instantiates changes based on key, replaces cell with value
 	for k, v in az_dict.items():
 		if k == vm_name_value and k != '':
 			wb = xw.Book(preload_path)
 			wb.sheets[2].range('B6').value = v
 
 def names_tag_sheet(preload_path, build_plan_path):
+	"""
+	This function:
+		- creates the list of comma seperated names for Tag-values sheet
+	"""
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
 	bp = wb.sheet_by_name(u'VM-Layout')
 
-	# ame', 'vm-type', 'nf_naming_code\n(VF Level) VVVV Code', 'VNF Type (tt)', 'VFC ID (ppp)', 'VM Instance #', 'vm-name', 'AZ:Compute', 'ext_pktinternal_ip', 'pktinternal_0_ip', 'pktinternal_1_ip', 'cdr_direct_bond_ip', 'vfl_pktinternal_0_ip']
+	# string search VM-Layout column headers and assign each columns reference position (int) to a variable
+	# this avoids hard coding the position of certain columns
+	# order does not matter
 	col_names = []
 	for cols in bp.row(4):
 		col_names.append(cols.value)
@@ -265,6 +304,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 		if col_names[col_num] == "vm-name":
 			col_ref_vmn = col_num
 	
+	# creates lists of all the names
 	prb_list = []
 	qrt_list = []
 	lba_list = []
@@ -276,24 +316,25 @@ def names_tag_sheet(preload_path, build_plan_path):
 		if "lba" in bp.cell_value(i, col_ref_vmn):
 			lba_list.append(bp.cell_value(i, col_ref_vmn))
 
-
+	# removes brackets and white spaces
 	prb_list = ('[%s]' % ','.join(map(str, prb_list)))[1:-1]
 	qrt_list = ('[%s]' % ','.join(map(str, qrt_list)))[1:-1]
 	lba_list = ('[%s]' % ','.join(map(str, lba_list)))[1:-1]
 
+	# creates a dict of the vm-type values and the above lists
 	names_dict = {"vlbagent_eph" : lba_list, "vprb" : prb_list, "qrouter" : qrt_list}
-	#print(names_dict)
 
 	# take vm type
 	extract_vm = pd.read_excel(preload_path, sheet_name="VMs", usecols = 'B')
 	col_B_list_vms = extract_vm.iloc[:, 0].tolist() # Save values of Column B to a list
 	vm_type = col_B_list_vms[-1] # save VM Type
-	#print(vm_type)
-	# search for vm type + _names and replace with list
+
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
 	sheet_names = wb.sheet_names()
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
+	# search for vm type + "_names" and replace with the proper list from above
 	for i in range(tag_sheet.nrows):
 		for k, v in names_dict.items():
 			if(tag_sheet.cell_value(i, 1) == (k + "_names") and k != ''):
@@ -301,29 +342,44 @@ def names_tag_sheet(preload_path, build_plan_path):
 				wb.sheets[8].range('C' + str(i+1)).value = str(v)
 
 def tag_sheet_indexes(preload_path, build_plan_path, count):
+	"""
+	This function:
+		- calculates the index values for the Tag-values sheet
+	"""
+	# takes file number and decrements by one
 	file_name = preload_path[30:]
 	num_append = list(re.findall(r'\d+', file_name))
 	num_append = (int(num_append[-1]) - 1)
 
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
 	sheet_names = wb.sheet_names()
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
+	# instantiate changes to template by iterating through all rows and replacing keys with corresponding values
 	for i in range(tag_sheet.nrows):
 		if(tag_sheet.cell_value(i, 1).endswith("index")):
 			wb = xw.Book(preload_path)
 			wb.sheets[8].range('C' + str(i+1)).value = str(count)
 
 def change_ips(preload_path, build_plan_path):
+	"""
+	This function:
+		- initiates changes for all ip related cells in Tag-Values sheet
+	"""
+	# open workbook and specify which sheet you would like to access
+	# save vm_name
 	wb = xw.Book(preload_path)
 	vm_name_value = wb.sheets[4].range('C7').value
-	#print(vm_name_value)
 
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
 	bp = wb.sheet_by_name(u'VM-Layout')
 
-	# # VM name', 'vm-type', 'nf_naming_code\n(VF Level) VVVV Code', 'VNF Type (tt)', 'VFC ID (ppp)', 'VM Instance #', 'vm-name', 'AZ:Compute', 'ext_pktinternal_ip', 'pktinternal_0_ip', 'pktinternal_1_ip', 'cdr_direct_bond_ip', 'vfl_pktinternal_0_ip']
+	# string search VM-Layout column headers and assign each columns reference position (int) to a variable
+	# this avoids hard coding the position of certain columns
+	# order does not matter
 	col_names = []
 	for cols in bp.row(4):
 		col_names.append(cols.value)
@@ -339,48 +395,40 @@ def change_ips(preload_path, build_plan_path):
 		if col_names[col_num] == "vfl_pktinternal_0_ip":
 			col_ref_vflpkt_ip = col_num
 
+	# create dictionaries of vm-names and ip's
 	pkt0_dict = {}
 	for i in range(5, bp.nrows):
 		vm_name = bp.cell_value(i, col_ref_vmn)
 		pk0_ip = bp.cell_value(i, col_ref_pk0_ip)
 		pkt0_dict[vm_name] = pk0_ip
-	#print(pkt0_dict)
 
 	pkt1_dict = {}
 	for i in range(5, bp.nrows):
 		vm_name = bp.cell_value(i, col_ref_vmn)
 		pk1_ip = bp.cell_value(i, col_ref_pk1_ip)
 		pkt1_dict[vm_name] = pk1_ip
-	#print(pkt1_dict)
 	
 	cdr_direct_dict = {}
 	for i in range(5, bp.nrows):
 		vm_name = bp.cell_value(i, col_ref_vmn)
 		cdr = bp.cell_value(i, col_ref_cdrdb_ip)
 		cdr_direct_dict[vm_name] = cdr
-	#print(cdr_direct_dict)
 
 	vfl_dict = {}
 	for i in range(5, bp.nrows):
 		vm_name = bp.cell_value(i, col_ref_vmn)
 		vfl = bp.cell_value(i, col_ref_vflpkt_ip)
 		vfl_dict[vm_name] = vfl
-	#print(vfl_dict)
 
+	# create dictionary of dictionaries
 	ip_dict = {"pktinternal_0_ip" : pkt0_dict , "pktinternal_1_ip" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "vfl_pktinternal_0_ip" :  vfl_dict}
 	
-	# print(ip_dict)
-	# print("\n")
-
-	# for k, v in ip_dict.items():
- #   		for k1, v1 in v.items():
- #   			print("k1", k1)
- #   			print("v1", v1)
-	
+	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
 	sheet_names = wb.sheet_names()
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
+	# instantiate changes to template by iterating through all rows and replacing keys with corresponding values
 	for i in range(tag_sheet.nrows):
 		for k, v in ip_dict.items():
 			if k in tag_sheet.cell_value(i, 1) and k != "":
@@ -390,7 +438,7 @@ def change_ips(preload_path, build_plan_path):
 						wb.sheets[8].range('C' + str(i+1)).value = v1
 
 
-print("Hello!")
+print("Hello! Meet PAT. The Preload Automation Tool!")
 
 build_plan_path = input("Please input entire path to the build plan:\n")
 while(build_plan_path == ""):
@@ -463,3 +511,7 @@ for preload_path in preload_list:
 # C:\Users\rs623u\automation\changed\
 
 # C:\Users\rs623u\Downloads\RDM52e_Automation_Build_Plan-v1.0.xlsx
+
+# C:\Users\rs623u\automation\RDM52c_Automation_Build_Plan_v1.0.xlsx
+# C:\Users\rs623u\automation\preloads52c
+# C:\Users\rs623u\automation\changed\
