@@ -2,6 +2,7 @@ import xlrd
 import openpyxl
 import sys
 import os
+from shutil import make_archive
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -1018,6 +1019,6 @@ for preload_path in preload_list:
 			wb = openpyxl.load_workbook(preload_path, keep_vba=True)	
 			wb.save(dest_folder + title_list[titles] + str(titles+1) + ".xlsm")
 
-
-			#wb.save(dest_folder + title_list[titles] + str(titles+1) + ".xlsm")
-			#print(dest_folder + title_list[titles] + str(titles+1) + ".xlsm")
+archive_name = os.path.expanduser(os.path.join(dest_folder + 'myarchive'))
+root_dir = os.path.expanduser(os.path.join(dest_folder))
+make_archive(archive_name, 'gztar', root_dir)
