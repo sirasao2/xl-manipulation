@@ -745,9 +745,11 @@ def change_ips(preload_path, build_plan_path):
 	# save vm_type
 	#wb = xw.Book(preload_path)
 	#vm_type = wb.sheets[4].range('B7').value
-	pt = openpyxl.load_workbook(preload_path)
-	ws = pt[u'VMs']
-	vm_type = ws['B7'].value
+	#pt = openpyxl.load_workbook(preload_path)
+	#ws = pt[u'VMs']
+	#vm_type = ws['B7'].value
+	#vm_type = str(vm_type)
+	#print("vm_type: ", vm_type)
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
@@ -790,55 +792,64 @@ def change_ips(preload_path, build_plan_path):
 	# create dictionaries of vm-names and ip's
 	pktmirror_0_ip_0_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		#vm_type = bp.cell_value(i, col_ref_vmt)
+		#vm_name = bp.cell_value(i, col_ref_vmn)
+		vm_type = bp.cell_value(i, col_ref_vmt)
 		pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
-		pktmirror_0_ip_0_dict[vm_name] = pkt
+		pktmirror_0_ip_0_dict[vm_type] = pkt
 	#print("PKT DICT: ", pktmirror_0_ip_0_dict)
 
 	pkt_zero_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		#vm_type = bp.cell_value(i, col_ref_vmt)
+		#vm_name = bp.cell_value(i, col_ref_vmn)
+		vm_type = bp.cell_value(i, col_ref_vmt)
 		pkt_zero_ip = bp.cell_value(i, col_ref_pkip_zero)
-		pkt_zero_dict[vm_name] = pkt_zero_ip
+		pkt_zero_dict[vm_type] = pkt_zero_ip
 
 	pkt0_dict = {}
 	for i in range(bp.nrows):
-		#vm_type = bp.cell_value(i, col_ref_vmt)
-		vm_name = bp.cell_value(i, col_ref_vmn)
+		vm_type = bp.cell_value(i, col_ref_vmt)
+		#vm_name = bp.cell_value(i, col_ref_vmn)
 		pk0_ip = bp.cell_value(i, col_ref_pk0_ip)
-		pkt0_dict[vm_name] = pk0_ip
+		pkt0_dict[vm_type] = pk0_ip
 
 	pkt1_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
+		#vm_name = bp.cell_value(i, col_ref_vmn)
+		vm_type = bp.cell_value(i, col_ref_vmt)
 		pk1_ip = bp.cell_value(i, col_ref_pk1_ip)
-		pkt1_dict[vm_name] = pk1_ip
+		pkt1_dict[vm_type] = pk1_ip
 	
 	cdr_direct_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
+		#vm_name = bp.cell_value(i, col_ref_vmn)
+		vm_type = bp.cell_value(i, col_ref_vmt)
 		cdr = bp.cell_value(i, col_ref_cdrdb_ip)
-		cdr_direct_dict[vm_name] = cdr
+		cdr_direct_dict[vm_type] = cdr
 
 	vfl_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
+		#vm_name = bp.cell_value(i, col_ref_vmn)
+		vm_type = bp.cell_value(i, col_ref_vmt)
 		vfl = bp.cell_value(i, col_ref_vflpkt_ip)
-		vfl_dict[vm_name] = vfl
+		vfl_dict[vm_type] = vfl
 
 	oam_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
+		vm_type = bp.cell_value(i, col_ref_vmt)
 		oam_ips = bp.cell_value(i, col_ref_oam_ip)
-		if vm_name in oam_dict:
-			oam_dict[vm_name].append(oam_ips)
+		if vm_type in oam_dict:
+			oam_dict[vm_type].append(oam_ips)
 		else:
-			oam_dict[vm_name] = [oam_ips]
+			oam_dict[vm_type] = [oam_ips]
+	#print("OAM IPS: ", oam_dict)
+	oam_dict = {k: ",".join(str(x) for x in v) for k,v in oam_dict.items()}
+	#print("OAM IPS: ", oam_dict)
+	
 
 	# create dictionary of dictionaries
 	ip_dict = {"ext_pktinternal_ip_0" : pkt_zero_dict,"pktinternal_0_ip" : pkt0_dict , "pktinternal_1_ip" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "vfl_pktinternal_0_ip" :  vfl_dict, "oam_protected_ips" : oam_dict, "pktmirror_0_ip_0" : pktmirror_0_ip_0_dict}
+
+	#print(ip_dict)
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
@@ -847,9 +858,15 @@ def change_ips(preload_path, build_plan_path):
 
 	#wb = xw.Book(preload_path)
 	#vm_name = wb.sheets[4].range('C7').value
+	#pt = openpyxl.load_workbook(preload_path)
+	#ws = pt[u'VMs']
+	#vm_name = ws['C7'].value
+
 	pt = openpyxl.load_workbook(preload_path)
 	ws = pt[u'VMs']
-	vm_name = ws['C7'].value
+	vm_type = ws['B7'].value
+	vm_type = str(vm_type)
+	#print("vm_type: ", vm_type)
 
 	wb = openpyxl.load_workbook(preload_path)
 	ws = wb[u'Tag-values']
@@ -857,11 +874,10 @@ def change_ips(preload_path, build_plan_path):
 		for k, v in ip_dict.items():
 			if k in tag_sheet.cell_value(i, 1):
 				for k1, v1 in v.items():
-					if k1 == vm_name:
+					#print(k1, v1)
+					if k1 == vm_type:
 						val = str(i+1)
 						ws['C' + val].value = v1
-						#wb = xw.Book(preload_path)
-						#wb.sheets[8].range('C' + str(i+1)).value = v1
 	wb.save(preload_path)
 
 ## CHECKS AND VALIDATION ##
@@ -883,7 +899,7 @@ def check_vnf_specs_headers(build_plan_path):
 			if bp.cell_value(i, j) == "vm-type":
 				row_ref_vmt = i
 
-	vnf_specs_headers_needed= ['VM Name', 'vm-type', 'nf_naming_code\n(VVVV)', 'VNF Type \n(tt)', 'nfc_naming_code \n(pppp)', "# of VM's", 'vnf-type', 'vf-module-model-name', 'vf-module-model-name-base', 'vf-module-name', 'vnf-name', 'Flavor Name', 'Cinder Volume Size', 'Image Name', 'security_group_name', 'probe_pod', 'vertica_configuration_cluster_name']
+	vnf_specs_headers_needed= ['VM Name', 'vm-type', 'nf_naming_code\n(VVVV)', 'VNF Type \n(tt)', 'nfc_naming_code \n(ppp)', "# of VM's", 'vnf-type', 'vf-module-model-name', 'vf-module-model-name-base', 'vf-module-name', 'vnf-name', 'Flavor Name', 'Cinder Volume Size', 'Image Name', 'security_group_name', 'probe_pod', 'vertica_configuration_cluster_name']
 	compare_iterator = []
 	for i in range(bp.nrows):
 		for j in range(bp.ncols):
