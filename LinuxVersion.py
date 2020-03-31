@@ -738,8 +738,8 @@ def change_ips(preload_path, build_plan_path):
 			if bp.cell_value(i,j) == "vm-type":
 				col_ref_vmt = j
 	
-			if bp.cell_value(i,j) == "ext_pktinternal_ip":
-				col_ref_pkip_zero = j
+			#if bp.cell_value(i,j) == "ext_pktinternal_ip":
+			#	col_ref_pkip_zero = j
 
 			if bp.cell_value(i,j) == "pktinternal_0_ip":
 				col_ref_pk0_ip = j
@@ -750,14 +750,26 @@ def change_ips(preload_path, build_plan_path):
 			if bp.cell_value(i,j) == "cdr_direct_bond_ip":
 				col_ref_cdrdb_ip = j
 
-			if bp.cell_value(i,j) == "vfl_pktinternal_0_ip":
-				col_ref_vflpkt_ip = j
+			#if bp.cell_value(i,j) == "vfl_pktinternal_0_ip":
+			#	col_ref_vflpkt_ip = j
 
 			if bp.cell_value(i,j) == "oam_protected":
 				col_ref_oam_ip = j
 
 			if bp.cell_value(i,j) == "pktmirror_0_ip_0":
 				col_ref_pktmirror_0_ip_0 = j
+			
+			if bp.cell_value(i,j) == "sd_vprobe1_0_ip":
+				col_ref_sd_vprobe1_0_ip = j
+			
+			if bp.cell_value(i,j) == "sd_vprobe2_0_ip":
+				col_ref_sd_vprobe2_0_ip = j	
+			
+			if bp.cell_value(i,j) == "vprobe1_0_ip":
+				col_ref_vprobe1_0_ip = j
+			
+			if bp.cell_value(i,j) == "vprobe2_0_ip":
+				col_ref_vprobe2_0_ip = j
 
 	# create dictionaries of vm-names and ip's
 	pktmirror_0_ip_0_dict = {}
@@ -767,12 +779,12 @@ def change_ips(preload_path, build_plan_path):
 		pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
 		pktmirror_0_ip_0_dict[vm_type] = pkt
 
-	pkt_zero_dict = {}
-	for i in range(bp.nrows):
-		#vm_name = bp.cell_value(i, col_ref_vmn)
-		vm_type = bp.cell_value(i, col_ref_vmt)
-		pkt_zero_ip = bp.cell_value(i, col_ref_pkip_zero)
-		pkt_zero_dict[vm_type] = pkt_zero_ip
+	#pkt_zero_dict = {}
+	#for i in range(bp.nrows):
+	#	#vm_name = bp.cell_value(i, col_ref_vmn)
+	#	vm_type = bp.cell_value(i, col_ref_vmt)
+	#	pkt_zero_ip = bp.cell_value(i, col_ref_pkip_zero)
+	#	pkt_zero_dict[vm_type] = pkt_zero_ip
 
 	pkt0_dict = {}
 	for i in range(bp.nrows):
@@ -795,12 +807,12 @@ def change_ips(preload_path, build_plan_path):
 		cdr = bp.cell_value(i, col_ref_cdrdb_ip)
 		cdr_direct_dict[vm_type] = cdr
 
-	vfl_dict = {}
-	for i in range(bp.nrows):
-		#vm_name = bp.cell_value(i, col_ref_vmn)
-		vm_type = bp.cell_value(i, col_ref_vmt)
-		vfl = bp.cell_value(i, col_ref_vflpkt_ip)
-		vfl_dict[vm_type] = vfl
+	#vfl_dict = {}
+	#for i in range(bp.nrows):
+	#	#vm_name = bp.cell_value(i, col_ref_vmn)
+	#	vm_type = bp.cell_value(i, col_ref_vmt)
+	#	vfl = bp.cell_value(i, col_ref_vflpkt_ip)
+	#	vfl_dict[vm_type] = vfl
 
 	oam_dict = {}
 	for i in range(bp.nrows):
@@ -811,10 +823,50 @@ def change_ips(preload_path, build_plan_path):
 		else:
 			oam_dict[vm_type] = [oam_ips]
 	oam_dict = {k: ",".join(str(x) for x in v) for k,v in oam_dict.items()}
+
+	sd_vprobe1_0_ip_dict = {}
+	for i in range(bp.nrows):
+		vm_type = bp.cell_value(i, col_ref_vmt)
+		sd_vprobe1_0_ips = bp.cell_value(i, col_ref_sd_vprobe1_0_ip)
+		if vm_type in sd_vprobe1_0_ip_dict:
+			sd_vprobe1_0_ip_dict[vm_type].append(sd_vprobe1_0_ips)
+		else:
+			sd_vprobe1_0_ip_dict[vm_type] = [sd_vprobe1_0_ips]
+	sd_vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe1_0_ip_dict.items()}
+
+	sd_vprobe2_0_ip_dict = {}
+	for i in range(bp.nrows):
+		vm_type = bp.cell_value(i, col_ref_vmt)
+		sd_vprobe2_0_ips = bp.cell_value(i, col_ref_sd_vprobe2_0_ip)
+		if vm_type in sd_vprobe2_0_ip_dict:
+			sd_vprobe2_0_ip_dict[vm_type].append(sd_vprobe2_0_ips)
+		else:
+			sd_vprobe2_0_ip_dict[vm_type] = [sd_vprobe2_0_ips]
+	sd_vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe2_0_ip_dict.items()}
+
+	vprobe1_0_ip_dict = {}
+	for i in range(bp.nrows):
+		vm_type = bp.cell_value(i, col_ref_vmt)
+		vprobe1_0_ips = bp.cell_value(i, col_ref_vprobe1_0_ip)
+		if vm_type in vprobe1_0_ip_dict:
+			vprobe1_0_ip_dict[vm_type].append(vprobe1_0_ips)
+		else:
+			vprobe1_0_ip_dict[vm_type] = [vprobe1_0_ips]
+	vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe1_0_ip_dict.items()}
+
+	vprobe2_0_ip_dict = {}
+	for i in range(bp.nrows):
+		vm_type = bp.cell_value(i, col_ref_vmt)
+		vprobe2_0_ips = bp.cell_value(i, col_ref_vprobe2_0_ip)
+		if vm_type in vprobe2_0_ip_dict:
+			vprobe2_0_ip_dict[vm_type].append(vprobe2_0_ips)
+		else:
+			vprobe2_0_ip_dict[vm_type] = [vprobe2_0_ips]
+	vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe2_0_ip_dict.items()}
 	
 
 	# create dictionary of dictionaries
-	ip_dict = {"ext_pktinternal_ip_0" : pkt_zero_dict,"pktinternal_0_ip" : pkt0_dict , "pktinternal_1_ip" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "vfl_pktinternal_0_ip" :  vfl_dict, "oam_protected_ips" : oam_dict, "pktmirror_0_ip_0" : pktmirror_0_ip_0_dict}
+	ip_dict = {"pktinternal_0_ip" : pkt0_dict , "pktinternal_1_ip" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "oam_protected_ips" : oam_dict, "pktmirror_0_ip_0" : pktmirror_0_ip_0_dict, "sd_vprobe1_0_ip" : sd_vprobe1_0_ip_dict, "sd_vprobe2_0_ip" : sd_vprobe2_0_ip_dict, "vprobe1_0_ip" : vprobe1_0_ip_dict, "vprobe2_0_ip" : vprobe2_0_ip_dict}
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
