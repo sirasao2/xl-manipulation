@@ -18,7 +18,6 @@ def calculate_vm_count(build_plan_path):
 	pt = openpyxl.load_workbook(preload_path)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
-	#print("VM TYPE: ", vm_type)    
 
 	# set variable to hold vm count
 	global vm_count 
@@ -48,7 +47,6 @@ def calculate_vm_count(build_plan_path):
 
 	# cast as integer as it is pulled as a string
 	for k, v in count_dict.items():
-		#print("TYPE:", vm_type)
 		if k == vm_type:
 			vm_count = int(v)
 
@@ -65,7 +63,6 @@ def calculate_vm_count(build_plan_path):
 		for i in range(1, vm_count+1):
 			if k != '' and k == vm_type:
 				title_list.append(v)
-	#print(title_list)
 
 ####### CHANGE GENERAL ########
 def change_general(preload_path, build_plan_path, count):
@@ -77,7 +74,6 @@ def change_general(preload_path, build_plan_path, count):
 	pt = openpyxl.load_workbook(preload_path)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
-	#print("VM TYPE:", vm_type)
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(build_plan_path)
@@ -112,7 +108,6 @@ def change_general(preload_path, build_plan_path, count):
 		vm = bp.cell_value(i, col_ref_vmt)
 		modules = bp.cell_value(i, col_ref_vfmn)
 		vf_module_name_dict[vm] = modules
-	#print(vf_module_name_dict)
 
 	# creates dict of vm-types and vf-module-model-names
 	vf_module_model_name_dict = {}
@@ -148,26 +143,21 @@ def change_general(preload_path, build_plan_path, count):
 	# update vf-module-name
 	for k, v in vf_module_name_dict.items():
 		if k == vm_type:
-			#print(v + count)
 			ws['C6'].value = v + count
-			#wb.sheets[1].range('C6').value = v + count # proper name # SUFFIX
 
 	#update vf module model
 	for k, v in vf_module_model_name_dict.items():
 		if k == vm_type:
-			#print(v)
 			ws['C8'].value = v
 
 	# update vnf-name
 	for k, v in vnf_name_dict.items():
 		if k == vm_type:
-			#print(v)
 			ws['C12'].value = v
 
 	# update vnf-type
 	for k, v in vnf_type_dict.items():
 		if k == vm_type:
-			#print(v)
 			ws['C13'].value = v
 
 	wb.save(preload_path)
@@ -272,7 +262,6 @@ def change_probe_prod(preload_path, build_plan_path):
 				if k == vm_type_for_probe_prod:
 					val = str(i+1)
 					ws['C' + val].value = v
-	#				wb.sheets[8].range('C' + str(i+1)).value = v
 	wb.save(preload_path)
 	
 def change_vccn(preload_path, build_plan_path):
@@ -370,7 +359,7 @@ def change_vm(preload_path, build_plan_path, count):
 	# grab values for vm-name and calculate appropriate suffix
 	wb = openpyxl.load_workbook(preload_path)
 	ws = wb[u'General']
-	vnf_name_general = ws['C12'].value #pt.sheets[1].range('C12').value
+	vnf_name_general = ws['C12'].value 
 
 
 	# open workbook and specify which sheet you would like to access
@@ -417,9 +406,6 @@ def change_az(preload_path, build_plan_path):
 	"""
 	# open workbook and specify which sheet you would like to access
 	# save vm_name
-	#wb = xw.Book(preload_path)
-	#vm_name_value = wb.sheets[4].range('C7').value
-	#print("vm_name_value: ", vm_name_value)
 	pt = openpyxl.load_workbook(preload_path)
 	ws = pt[u'VMs']
 	vm_name_value = ws['C7'].value
@@ -461,8 +447,6 @@ def change_vm_network_ips(preload_path, build_plan_path):
 			- fills proper information into VM-network-IPs
 	"""
 	# extract vm-name
-	#wb = xw.Book(preload_path)
-	#vm_name = wb.sheets[4].range('C7').value
 	pt = openpyxl.load_workbook(preload_path)
 	ws = pt[u'VMs']
 	vm_name = ws['C7'].value
@@ -690,8 +674,6 @@ def names_tag_sheet(preload_path, build_plan_path):
 				}
 
 	# take vm type
-	#pt = xw.Book(preload_path)
-	#vm_type = pt.sheets[4].range('B7').value
 	pt = openpyxl.load_workbook(preload_path)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
@@ -710,8 +692,6 @@ def names_tag_sheet(preload_path, build_plan_path):
 				val = str(i+1)
 				ws['C' + val].value = str(v) # should this be string
 	wb.save(preload_path)
-				#wb = xw.Book(preload_path)
-				#wb.sheets[8].range('C' + str(i+1)).value = str(v)
 
 def tag_sheet_indexes(preload_path, build_plan_path, count):
 	"""
@@ -733,9 +713,6 @@ def tag_sheet_indexes(preload_path, build_plan_path, count):
 				ws['C' + val].value = str(count)
 	wb.save(preload_path)
 
-			#wb = xw.Book(preload_path)
-			#wb.sheets[8].range('C' + str(i+1)).value = str(count)
-
 def change_ips(preload_path, build_plan_path):
 	"""
 	This function:
@@ -743,15 +720,8 @@ def change_ips(preload_path, build_plan_path):
 	"""
 	# open workbook and specify which sheet you would like to access
 	# save vm_type
-	#wb = xw.Book(preload_path)
-	#vm_type = wb.sheets[4].range('B7').value
-	#pt = openpyxl.load_workbook(preload_path)
-	#ws = pt[u'VMs']
-	#vm_type = ws['B7'].value
-	#vm_type = str(vm_type)
-	#print("vm_type: ", vm_type)
-
 	# open workbook and specify which sheet you would like to access
+
 	wb = xlrd.open_workbook(build_plan_path)
 	sheet_names = wb.sheet_names()
 	bp = wb.sheet_by_name(u'VM-Layout')
@@ -796,7 +766,6 @@ def change_ips(preload_path, build_plan_path):
 		vm_type = bp.cell_value(i, col_ref_vmt)
 		pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
 		pktmirror_0_ip_0_dict[vm_type] = pkt
-	#print("PKT DICT: ", pktmirror_0_ip_0_dict)
 
 	pkt_zero_dict = {}
 	for i in range(bp.nrows):
@@ -841,32 +810,21 @@ def change_ips(preload_path, build_plan_path):
 			oam_dict[vm_type].append(oam_ips)
 		else:
 			oam_dict[vm_type] = [oam_ips]
-	#print("OAM IPS: ", oam_dict)
 	oam_dict = {k: ",".join(str(x) for x in v) for k,v in oam_dict.items()}
-	#print("OAM IPS: ", oam_dict)
 	
 
 	# create dictionary of dictionaries
 	ip_dict = {"ext_pktinternal_ip_0" : pkt_zero_dict,"pktinternal_0_ip" : pkt0_dict , "pktinternal_1_ip" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "vfl_pktinternal_0_ip" :  vfl_dict, "oam_protected_ips" : oam_dict, "pktmirror_0_ip_0" : pktmirror_0_ip_0_dict}
-
-	#print(ip_dict)
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
 	sheet_names = wb.sheet_names()
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
-	#wb = xw.Book(preload_path)
-	#vm_name = wb.sheets[4].range('C7').value
-	#pt = openpyxl.load_workbook(preload_path)
-	#ws = pt[u'VMs']
-	#vm_name = ws['C7'].value
-
 	pt = openpyxl.load_workbook(preload_path)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
 	vm_type = str(vm_type)
-	#print("vm_type: ", vm_type)
 
 	wb = openpyxl.load_workbook(preload_path)
 	ws = wb[u'Tag-values']
@@ -906,9 +864,13 @@ def check_vnf_specs_headers(build_plan_path):
 			compare_iterator.append(bp.cell_value(row_ref_vmt, j)) 
 
 	if len(list(set(vnf_specs_headers_needed) - set(compare_iterator))) == 0:
+		print("\n")
 		print("You have all correct headers in VNF-Specs.")
+		print("\n")
 	else:
+		print("\n")
 		print("You are missing: ", list(set(vnf_specs_headers_needed) - set(compare_iterator)), "from VNF-Specs headers. Please append this to VNF-Specs tab.")
+		print("\n")
 
 def check_vm_layout_headers(build_plan_path):
 	# scan the headers of the given build plan
@@ -935,9 +897,13 @@ def check_vm_layout_headers(build_plan_path):
 			compare_iterator.append(bp.cell_value(row_ref_vmt, j)) 
 
 	if len(list(set(vm_layout_headers_needed) - set(compare_iterator))) == 0:
+		print("\n")
 		print("You have all correct headers in VM-Layout.")
+		print("\n")
 	else:
+		print("\n")
 		print("You are missing: ", list(set(vm_layout_headers_needed) - set(compare_iterator)), "from VM-Layout headers. Please append this to VM-Layout tab.")
+		print("\n")
 
 def check_vm(build_plan_path):
 	# This function will check to see if the vnf-name in VNF-Specs STARTS the values of vm-name in the 
@@ -991,10 +957,9 @@ def check_vm(build_plan_path):
 		if vnf_name_list[0] in i:
 			return 
 		else:
+			print("\n")
 			print("Please make sure that your vm-names in VM-Layout start with vnf-name values from VNF-Specs sheet.")
 			break
-
-## CHECKS AND VALIDATON ##
 
 
 ##########################################################################################################################
@@ -1018,11 +983,10 @@ for preload_path in preload_list:
 	if "base" not in preload_path:
 		calculate_vm_count(build_plan_path)
 		for titles in range(0, len(title_list)):
-			#wb = openpyxl.load_workbook(preload_path, keep_vba=True)
 			change_general(preload_path, build_plan_path, str(titles + 1))
 			change_networks(preload_path, build_plan_path)
 			change_probe_prod(preload_path, build_plan_path)
-			#change_vccn(preload_path, build_plan_path)
+			change_vccn(preload_path, build_plan_path)
 			change_tag(preload_path, build_plan_path)
 			change_vm(preload_path, build_plan_path, str(titles + 1))
 			change_az(preload_path, build_plan_path)
