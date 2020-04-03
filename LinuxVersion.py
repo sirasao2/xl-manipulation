@@ -738,9 +738,6 @@ def change_ips(preload_path, build_plan_path):
 			if bp.cell_value(i,j) == "vm-type":
 				col_ref_vmt = j
 	
-			#if bp.cell_value(i,j) == "ext_pktinternal_ip":
-			#	col_ref_pkip_zero = j
-
 			if bp.cell_value(i,j) == "pktinternal_0_ip":
 				col_ref_pk0_ip = j
 
@@ -749,9 +746,6 @@ def change_ips(preload_path, build_plan_path):
 
 			if bp.cell_value(i,j) == "cdr_direct_bond_ip":
 				col_ref_cdrdb_ip = j
-
-			#if bp.cell_value(i,j) == "vfl_pktinternal_0_ip":
-			#	col_ref_vflpkt_ip = j
 
 			if bp.cell_value(i,j) == "oam_protected":
 				col_ref_oam_ip = j
@@ -779,12 +773,6 @@ def change_ips(preload_path, build_plan_path):
 		pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
 		pktmirror_0_ip_0_dict[vm_type] = pkt
 
-	#pkt_zero_dict = {}
-	#for i in range(bp.nrows):
-	#	#vm_name = bp.cell_value(i, col_ref_vmn)
-	#	vm_type = bp.cell_value(i, col_ref_vmt)
-	#	pkt_zero_ip = bp.cell_value(i, col_ref_pkip_zero)
-	#	pkt_zero_dict[vm_type] = pkt_zero_ip
 
 	pkt0_dict = {}
 	for i in range(bp.nrows):
@@ -806,13 +794,6 @@ def change_ips(preload_path, build_plan_path):
 		vm_type = bp.cell_value(i, col_ref_vmt)
 		cdr = bp.cell_value(i, col_ref_cdrdb_ip)
 		cdr_direct_dict[vm_type] = cdr
-
-	#vfl_dict = {}
-	#for i in range(bp.nrows):
-	#	#vm_name = bp.cell_value(i, col_ref_vmn)
-	#	vm_type = bp.cell_value(i, col_ref_vmt)
-	#	vfl = bp.cell_value(i, col_ref_vflpkt_ip)
-	#	vfl_dict[vm_type] = vfl
 
 	oam_dict = {}
 	for i in range(bp.nrows):
@@ -882,7 +863,8 @@ def change_ips(preload_path, build_plan_path):
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		for k, v in ip_dict.items():
-			if k in tag_sheet.cell_value(i, 1):
+			#if k in tag_sheet.cell_value(i, 1):
+			if tag_sheet.cell_value(i, 1).startswith(k):
 				for k1, v1 in v.items():
 					#print(k1, v1)
 					if k1 == vm_type:
@@ -916,11 +898,9 @@ def check_vnf_specs_headers(build_plan_path):
 			compare_iterator.append(bp.cell_value(row_ref_vmt, j)) 
 
 	if len(list(set(vnf_specs_headers_needed) - set(compare_iterator))) == 0:
-		print("\n")
 		print("You have all correct headers in VNF-Specs.")
 		print("\n")
 	else:
-		print("\n")
 		print("You are missing: ", list(set(vnf_specs_headers_needed) - set(compare_iterator)), "from VNF-Specs headers. Please append this to VNF-Specs tab.")
 		print("\n")
 
@@ -949,11 +929,9 @@ def check_vm_layout_headers(build_plan_path):
 			compare_iterator.append(bp.cell_value(row_ref_vmt, j)) 
 
 	if len(list(set(vm_layout_headers_needed) - set(compare_iterator))) == 0:
-		print("\n")
 		print("You have all correct headers in VM-Layout.")
 		print("\n")
 	else:
-		print("\n")
 		print("You are missing: ", list(set(vm_layout_headers_needed) - set(compare_iterator)), "from VM-Layout headers. Please append this to VM-Layout tab.")
 		print("\n")
 
@@ -1009,7 +987,6 @@ def check_vm(build_plan_path):
 		if vnf_name_list[0] in i:
 			return 
 		else:
-			print("\n")
 			print("Please make sure that your vm-names in VM-Layout start with vnf-name values from VNF-Specs sheet.")
 			break
 
