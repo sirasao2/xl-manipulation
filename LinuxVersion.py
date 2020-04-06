@@ -768,32 +768,32 @@ def change_ips(preload_path, build_plan_path):
 	# create dictionaries of vm-names and ip's
 	pktmirror_0_ip_0_dict = {}
 	for i in range(bp.nrows):
-		#vm_name = bp.cell_value(i, col_ref_vmn)
-		vm_type = bp.cell_value(i, col_ref_vmt)
+		vm_name = bp.cell_value(i, col_ref_vmn)
+		#vm_type = bp.cell_value(i, col_ref_vmt)
 		pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
-		pktmirror_0_ip_0_dict[vm_type] = pkt
+		pktmirror_0_ip_0_dict[vm_name] = pkt
 
 
 	pkt0_dict = {}
 	for i in range(bp.nrows):
-		vm_type = bp.cell_value(i, col_ref_vmt)
-		#vm_name = bp.cell_value(i, col_ref_vmn)
+		#vm_type = bp.cell_value(i, col_ref_vmt)
+		vm_name = bp.cell_value(i, col_ref_vmn)
 		pk0_ip = bp.cell_value(i, col_ref_pk0_ip)
-		pkt0_dict[vm_type] = pk0_ip
+		pkt0_dict[vm_name] = pk0_ip
 
 	pkt1_dict = {}
 	for i in range(bp.nrows):
-		#vm_name = bp.cell_value(i, col_ref_vmn)
-		vm_type = bp.cell_value(i, col_ref_vmt)
+		vm_name = bp.cell_value(i, col_ref_vmn)
+		#vm_type = bp.cell_value(i, col_ref_vmt)
 		pk1_ip = bp.cell_value(i, col_ref_pk1_ip)
-		pkt1_dict[vm_type] = pk1_ip
+		pkt1_dict[vm_name] = pk1_ip
 	
 	cdr_direct_dict = {}
 	for i in range(bp.nrows):
-		#vm_name = bp.cell_value(i, col_ref_vmn)
-		vm_type = bp.cell_value(i, col_ref_vmt)
+		vm_name = bp.cell_value(i, col_ref_vmn)
+		#vm_type = bp.cell_value(i, col_ref_vmt)
 		cdr = bp.cell_value(i, col_ref_cdrdb_ip)
-		cdr_direct_dict[vm_type] = cdr
+		cdr_direct_dict[vm_name] = cdr
 
 	oam_dict = {}
 	for i in range(bp.nrows):
@@ -807,42 +807,42 @@ def change_ips(preload_path, build_plan_path):
 
 	sd_vprobe1_0_ip_dict = {}
 	for i in range(bp.nrows):
-		vm_type = bp.cell_value(i, col_ref_vmt)
+		vm_name = bp.cell_value(i, col_ref_vmn)
 		sd_vprobe1_0_ips = bp.cell_value(i, col_ref_sd_vprobe1_0_ip)
 		if vm_type in sd_vprobe1_0_ip_dict:
-			sd_vprobe1_0_ip_dict[vm_type].append(sd_vprobe1_0_ips)
+			sd_vprobe1_0_ip_dict[vm_name].append(sd_vprobe1_0_ips)
 		else:
-			sd_vprobe1_0_ip_dict[vm_type] = [sd_vprobe1_0_ips]
+			sd_vprobe1_0_ip_dict[vm_name] = [sd_vprobe1_0_ips]
 	sd_vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe1_0_ip_dict.items()}
 
 	sd_vprobe2_0_ip_dict = {}
 	for i in range(bp.nrows):
-		vm_type = bp.cell_value(i, col_ref_vmt)
+		vm_name = bp.cell_value(i, col_ref_vmn)
 		sd_vprobe2_0_ips = bp.cell_value(i, col_ref_sd_vprobe2_0_ip)
 		if vm_type in sd_vprobe2_0_ip_dict:
-			sd_vprobe2_0_ip_dict[vm_type].append(sd_vprobe2_0_ips)
+			sd_vprobe2_0_ip_dict[vm_name].append(sd_vprobe2_0_ips)
 		else:
-			sd_vprobe2_0_ip_dict[vm_type] = [sd_vprobe2_0_ips]
+			sd_vprobe2_0_ip_dict[vm_name] = [sd_vprobe2_0_ips]
 	sd_vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe2_0_ip_dict.items()}
 
 	vprobe1_0_ip_dict = {}
 	for i in range(bp.nrows):
-		vm_type = bp.cell_value(i, col_ref_vmt)
+		vm_name = bp.cell_value(i, col_ref_vmn)
 		vprobe1_0_ips = bp.cell_value(i, col_ref_vprobe1_0_ip)
 		if vm_type in vprobe1_0_ip_dict:
-			vprobe1_0_ip_dict[vm_type].append(vprobe1_0_ips)
+			vprobe1_0_ip_dict[vm_name].append(vprobe1_0_ips)
 		else:
-			vprobe1_0_ip_dict[vm_type] = [vprobe1_0_ips]
+			vprobe1_0_ip_dict[vm_name] = [vprobe1_0_ips]
 	vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe1_0_ip_dict.items()}
 
 	vprobe2_0_ip_dict = {}
 	for i in range(bp.nrows):
-		vm_type = bp.cell_value(i, col_ref_vmt)
+		vm_name = bp.cell_value(i, col_ref_vmn)
 		vprobe2_0_ips = bp.cell_value(i, col_ref_vprobe2_0_ip)
 		if vm_type in vprobe2_0_ip_dict:
-			vprobe2_0_ip_dict[vm_type].append(vprobe2_0_ips)
+			vprobe2_0_ip_dict[vm_name].append(vprobe2_0_ips)
 		else:
-			vprobe2_0_ip_dict[vm_type] = [vprobe2_0_ips]
+			vprobe2_0_ip_dict[vm_name] = [vprobe2_0_ips]
 	vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe2_0_ip_dict.items()}
 	
 
@@ -859,6 +859,9 @@ def change_ips(preload_path, build_plan_path):
 	vm_type = ws['B7'].value
 	vm_type = str(vm_type)
 
+	vm_name = ws['C7'].value
+	vm_name = str(vm_name)
+
 	wb = openpyxl.load_workbook(preload_path)
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
@@ -866,8 +869,7 @@ def change_ips(preload_path, build_plan_path):
 			#if k in tag_sheet.cell_value(i, 1):
 			if tag_sheet.cell_value(i, 1).startswith(k):
 				for k1, v1 in v.items():
-					#print(k1, v1)
-					if k1 == vm_type:
+					if k1 == vm_type or k1 == vm_name:
 						val = str(i+1)
 						ws['C' + val].value = v1
 	wb.save(preload_path)
@@ -988,6 +990,7 @@ def check_vm(build_plan_path):
 			return 
 		else:
 			print("Please make sure that your vm-names in VM-Layout start with vnf-name values from VNF-Specs sheet.")
+			print("\n")
 			break
 
 
