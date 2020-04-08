@@ -1057,7 +1057,7 @@ for preload_path in preload_list:
 
 
 # datetime object containing current date and time
-now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 name = dest_folder.rsplit('/')[-2]
 zipf = name + "-" + str(now)
 archive_name = os.path.expanduser(os.path.join(dest_folder + zipf))
