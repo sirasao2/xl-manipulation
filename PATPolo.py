@@ -3,6 +3,7 @@ import openpyxl
 import sys
 import os
 from shutil import make_archive
+import datetime 
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -768,81 +769,103 @@ def change_ips(preload_path, build_plan_path):
 	# create dictionaries of vm-names and ip's
 	pktmirror_0_ip_0_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		#vm_type = bp.cell_value(i, col_ref_vmt)
-		pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
-		pktmirror_0_ip_0_dict[vm_name] = pkt
-
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
+			pktmirror_0_ip_0_dict[vm_name] = pkt
+		except:		
+			pass
 
 	pkt0_dict = {}
 	for i in range(bp.nrows):
-		#vm_type = bp.cell_value(i, col_ref_vmt)
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		pk0_ip = bp.cell_value(i, col_ref_pk0_ip)
-		pkt0_dict[vm_name] = pk0_ip
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			pk0_ip = bp.cell_value(i, col_ref_pk0_ip)
+			pkt0_dict[vm_name] = pk0_ip
+		except:		
+			pass
 
 	pkt1_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		#vm_type = bp.cell_value(i, col_ref_vmt)
-		pk1_ip = bp.cell_value(i, col_ref_pk1_ip)
-		pkt1_dict[vm_name] = pk1_ip
-	
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			pk1_ip = bp.cell_value(i, col_ref_pk1_ip)
+			pkt1_dict[vm_name] = pk1_ip
+		except:		
+			pass
+
 	cdr_direct_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		#vm_type = bp.cell_value(i, col_ref_vmt)
-		cdr = bp.cell_value(i, col_ref_cdrdb_ip)
-		cdr_direct_dict[vm_name] = cdr
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			cdr = bp.cell_value(i, col_ref_cdrdb_ip)
+			cdr_direct_dict[vm_name] = cdr
+		except:
+			pass
 
 	oam_dict = {}
 	for i in range(bp.nrows):
-		vm_type = bp.cell_value(i, col_ref_vmt)
-		oam_ips = bp.cell_value(i, col_ref_oam_ip)
-		if vm_type in oam_dict:
-			oam_dict[vm_type].append(oam_ips)
-		else:
-			oam_dict[vm_type] = [oam_ips]
+		try:
+			vm_type = bp.cell_value(i, col_ref_vmt)
+			oam_ips = bp.cell_value(i, col_ref_oam_ip)
+			if vm_type in oam_dict:
+				oam_dict[vm_type].append(oam_ips)
+			else:
+				oam_dict[vm_type] = [oam_ips]
+		except:
+			pass
 	oam_dict = {k: ",".join(str(x) for x in v) for k,v in oam_dict.items()}
 
 	sd_vprobe1_0_ip_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		sd_vprobe1_0_ips = bp.cell_value(i, col_ref_sd_vprobe1_0_ip)
-		if vm_type in sd_vprobe1_0_ip_dict:
-			sd_vprobe1_0_ip_dict[vm_name].append(sd_vprobe1_0_ips)
-		else:
-			sd_vprobe1_0_ip_dict[vm_name] = [sd_vprobe1_0_ips]
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			sd_vprobe1_0_ips = bp.cell_value(i, col_ref_sd_vprobe1_0_ip)
+			if vm_type in sd_vprobe1_0_ip_dict:
+				sd_vprobe1_0_ip_dict[vm_name].append(sd_vprobe1_0_ips)
+			else:
+				sd_vprobe1_0_ip_dict[vm_name] = [sd_vprobe1_0_ips]
+		except:
+			pass
 	sd_vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe1_0_ip_dict.items()}
 
 	sd_vprobe2_0_ip_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		sd_vprobe2_0_ips = bp.cell_value(i, col_ref_sd_vprobe2_0_ip)
-		if vm_type in sd_vprobe2_0_ip_dict:
-			sd_vprobe2_0_ip_dict[vm_name].append(sd_vprobe2_0_ips)
-		else:
-			sd_vprobe2_0_ip_dict[vm_name] = [sd_vprobe2_0_ips]
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			sd_vprobe2_0_ips = bp.cell_value(i, col_ref_sd_vprobe2_0_ip)
+			if vm_type in sd_vprobe2_0_ip_dict:
+				sd_vprobe2_0_ip_dict[vm_name].append(sd_vprobe2_0_ips)
+			else:
+				sd_vprobe2_0_ip_dict[vm_name] = [sd_vprobe2_0_ips]
+		except:
+			pass
 	sd_vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe2_0_ip_dict.items()}
 
 	vprobe1_0_ip_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		vprobe1_0_ips = bp.cell_value(i, col_ref_vprobe1_0_ip)
-		if vm_type in vprobe1_0_ip_dict:
-			vprobe1_0_ip_dict[vm_name].append(vprobe1_0_ips)
-		else:
-			vprobe1_0_ip_dict[vm_name] = [vprobe1_0_ips]
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			vprobe1_0_ips = bp.cell_value(i, col_ref_vprobe1_0_ip)
+			if vm_type in vprobe1_0_ip_dict:
+				vprobe1_0_ip_dict[vm_name].append(vprobe1_0_ips)
+			else:
+				vprobe1_0_ip_dict[vm_name] = [vprobe1_0_ips]
+		except:
+			pass
 	vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe1_0_ip_dict.items()}
 
 	vprobe2_0_ip_dict = {}
 	for i in range(bp.nrows):
-		vm_name = bp.cell_value(i, col_ref_vmn)
-		vprobe2_0_ips = bp.cell_value(i, col_ref_vprobe2_0_ip)
-		if vm_type in vprobe2_0_ip_dict:
-			vprobe2_0_ip_dict[vm_name].append(vprobe2_0_ips)
-		else:
-			vprobe2_0_ip_dict[vm_name] = [vprobe2_0_ips]
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			vprobe2_0_ips = bp.cell_value(i, col_ref_vprobe2_0_ip)
+			if vm_type in vprobe2_0_ip_dict:
+				vprobe2_0_ip_dict[vm_name].append(vprobe2_0_ips)
+			else:
+				vprobe2_0_ip_dict[vm_name] = [vprobe2_0_ips]
+		except:
+			pass
 	vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe2_0_ip_dict.items()}
 	
 
@@ -999,7 +1022,7 @@ def check_vm(build_plan_path):
 
 
 build_plan_path = sys.argv[1]
-check_vnf_specs_headers(build_plan_path)
+#check_vnf_specs_headers(build_plan_path)
 check_vm_layout_headers(build_plan_path)
 check_vm(build_plan_path)
 
@@ -1031,6 +1054,9 @@ for preload_path in preload_list:
 			wb = openpyxl.load_workbook(preload_path, keep_vba=True)	
 			wb.save(dest_folder + title_list[titles] + str(titles+1) + ".xlsm")
 
-archive_name = os.path.expanduser(os.path.join(dest_folder + 'myarchive'))
+
+# datetime object containing current date and time
+now = datetime.datetime.now()
+archive_name = os.path.expanduser(os.path.join(dest_folder + str(now)))
 root_dir = os.path.expanduser(os.path.join(dest_folder))
 make_archive(archive_name, 'gztar', root_dir)
