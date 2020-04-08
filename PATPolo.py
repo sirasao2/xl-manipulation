@@ -1033,6 +1033,7 @@ for idx, item in enumerate(os.listdir(paths)):
 
 dest_folder = sys.argv[3]
 
+
 files = []
 for preload_path in preload_list:
 	if "base" not in preload_path:
@@ -1056,7 +1057,14 @@ for preload_path in preload_list:
 
 
 # datetime object containing current date and time
-now = datetime.datetime.now()
-archive_name = os.path.expanduser(os.path.join(dest_folder + str(now)))
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+name = dest_folder.rsplit('/')[-2]
+zipf = name + "-" + str(now)
+archive_name = os.path.expanduser(os.path.join(dest_folder + zipf))
 root_dir = os.path.expanduser(os.path.join(dest_folder))
 make_archive(archive_name, 'gztar', root_dir)
+
+
+for fname in os.listdir(dest_folder):
+	if fname.endswith(".xlsm"):
+		os.remove(os.path.join(dest_folder, fname))
