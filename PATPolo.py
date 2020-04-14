@@ -889,8 +889,8 @@ def change_ips(preload_path, build_plan_path):
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		for k, v in ip_dict.items():
-			#if k in tag_sheet.cell_value(i, 1):
-			if tag_sheet.cell_value(i, 1).startswith(k):
+			if k in tag_sheet.cell_value(i, 1):
+			#if tag_sheet.cell_value(i, 1).startswith(k) or tag_sheet.cell_value(i, 1).endswith(k):
 				for k1, v1 in v.items():
 					if k1 == vm_type or k1 == vm_name:
 						val = str(i+1)
@@ -1062,7 +1062,7 @@ name = dest_folder.rsplit('/')[-2]
 zipf = name + "-" + str(now)
 archive_name = os.path.expanduser(os.path.join(dest_folder + zipf))
 root_dir = os.path.expanduser(os.path.join(dest_folder))
-make_archive(archive_name, 'gztar', root_dir)
+make_archive(archive_name, 'zip', root_dir)
 
 
 for fname in os.listdir(dest_folder):
