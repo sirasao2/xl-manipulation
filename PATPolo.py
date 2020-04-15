@@ -766,6 +766,7 @@ def change_ips(preload_path, build_plan_path):
 			if bp.cell_value(i,j) == "vprobe2_0_ip":
 				col_ref_vprobe2_0_ip = j
 
+
 	# create dictionaries of vm-names and ip's
 	pktmirror_0_ip_0_dict = {}
 	for i in range(bp.nrows):
@@ -792,32 +793,35 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	pkt0_dict = {k: ",".join(str(x) for x in v) for k,v in pkt0_dict.items()}
+	#print(pkt0_dict)
 
 	pkt1_dict = {}
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			pk1_ip = bp.cell_value(i, col_ref_pk1_ip)
-			if vm_type in pkt1_dict:
+			if vm_name in pkt1_dict:
 				pkt1_dict[vm_name].append(pk1_ip)
 			else:
 				pkt1_dict[vm_name] = [pk1_ip]
 		except:
 			pass
 	pkt1_dict = {k: ",".join(str(x) for x in v) for k,v in pkt1_dict.items()}
+	#print(pkt1_dict)
 
 	cdr_direct_dict = {}
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			cdr = bp.cell_value(i, col_ref_cdrdb_ip)
-			if vm_type in cdr_direct_dict:
+			if vm_name in cdr_direct_dict:
 				cdr_direct_dict[vm_name].append(cdr)
 			else:
 				cdr_direct_dict[vm_name] = [cdr]
 		except:
 			pass
 	cdr_direct_dict = {k: ",".join(str(x) for x in v) for k,v in cdr_direct_dict.items()}
+	#print("CDR: ", cdr_direct_dict)
 
 	oam_dict = {}
 	for i in range(bp.nrows):
@@ -888,7 +892,8 @@ def change_ips(preload_path, build_plan_path):
 	
 
 	# create dictionary of dictionaries
-	ip_dict = {"pktinternal_0_ip" : pkt0_dict , "pktinternal_1_ip" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "oam_protected_ips" : oam_dict, "pktmirror_0_ip_0" : pktmirror_0_ip_0_dict, "sd_vprobe1_0_ip" : sd_vprobe1_0_ip_dict, "sd_vprobe2_0_ip" : sd_vprobe2_0_ip_dict, "vprobe1_0_ip" : vprobe1_0_ip_dict, "vprobe2_0_ip" : vprobe2_0_ip_dict}
+	ip_dict = {"pktinternal_0_ip_0" : pkt0_dict , "pktinternal_1_ip_0" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "oam_protected_ips" : oam_dict, "pktmirror_0_ip_0" : pktmirror_0_ip_0_dict, "sd_vprobe1_0_ip" : sd_vprobe1_0_ip_dict, "sd_vprobe2_0_ip" : sd_vprobe2_0_ip_dict, "vprobe1_0_ip" : vprobe1_0_ip_dict, "vprobe2_0_ip" : vprobe2_0_ip_dict}
+	
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
