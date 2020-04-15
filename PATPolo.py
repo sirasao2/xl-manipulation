@@ -772,36 +772,52 @@ def change_ips(preload_path, build_plan_path):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
-			pktmirror_0_ip_0_dict[vm_name] = pkt
-		except:		
+			if vm_name in pktmirror_0_ip_0_dict:
+				pktmirror_0_ip_0_dict[vm_name].append(pkt)
+			else:
+				pktmirror_0_ip_0_dict[vm_name] = [pkt]
+		except:
 			pass
+	pktmirror_0_ip_0_dict = {k: ",".join(str(x) for x in v) for k,v in pktmirror_0_ip_0_dict.items()}
 
 	pkt0_dict = {}
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			pk0_ip = bp.cell_value(i, col_ref_pk0_ip)
-			pkt0_dict[vm_name] = pk0_ip
-		except:		
+			if vm_name in pkt0_dict:
+				pkt0_dict[vm_name].append(pk0_ip)
+			else:
+				pkt0_dict[vm_name] = [pk0_ip]
+		except:
 			pass
+	pkt0_dict = {k: ",".join(str(x) for x in v) for k,v in pkt0_dict.items()}
 
 	pkt1_dict = {}
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			pk1_ip = bp.cell_value(i, col_ref_pk1_ip)
-			pkt1_dict[vm_name] = pk1_ip
-		except:		
+			if vm_type in pkt1_dict:
+				pkt1_dict[vm_name].append(pk1_ip)
+			else:
+				pkt1_dict[vm_name] = [pk1_ip]
+		except:
 			pass
+	pkt1_dict = {k: ",".join(str(x) for x in v) for k,v in pkt1_dict.items()}
 
 	cdr_direct_dict = {}
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			cdr = bp.cell_value(i, col_ref_cdrdb_ip)
-			cdr_direct_dict[vm_name] = cdr
+			if vm_type in cdr_direct_dict:
+				cdr_direct_dict[vm_name].append(cdr)
+			else:
+				cdr_direct_dict[vm_name] = [cdr]
 		except:
 			pass
+	cdr_direct_dict = {k: ",".join(str(x) for x in v) for k,v in cdr_direct_dict.items()}
 
 	oam_dict = {}
 	for i in range(bp.nrows):
@@ -828,6 +844,7 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	sd_vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe1_0_ip_dict.items()}
+	#print("sd_vprobe1_0_ip_dict: ", sd_vprobe1_0_ip_dict)
 
 	sd_vprobe2_0_ip_dict = {}
 	for i in range(bp.nrows):
@@ -841,6 +858,7 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	sd_vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe2_0_ip_dict.items()}
+	#print("sd_vprobe2_0_ip_dict: ", sd_vprobe2_0_ip_dict)
 
 	vprobe1_0_ip_dict = {}
 	for i in range(bp.nrows):
@@ -889,8 +907,8 @@ def change_ips(preload_path, build_plan_path):
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		for k, v in ip_dict.items():
-			if k in tag_sheet.cell_value(i, 1):
-			#if tag_sheet.cell_value(i, 1).startswith(k) or tag_sheet.cell_value(i, 1).endswith(k):
+			#if k in tag_sheet.cell_value(i, 1):
+			if tag_sheet.cell_value(i, 1).startswith(k) or tag_sheet.cell_value(i, 1).endswith(k):
 				for k1, v1 in v.items():
 					if k1 == vm_type or k1 == vm_name:
 						val = str(i+1)
@@ -1024,7 +1042,7 @@ def check_vm(build_plan_path):
 build_plan_path = sys.argv[1]
 #check_vnf_specs_headers(build_plan_path)
 check_vm_layout_headers(build_plan_path)
-check_vm(build_plan_path)
+#check_vm(build_plan_path)
 
 preload_list = []
 paths = sys.argv[2]
@@ -1063,7 +1081,6 @@ zipf = name + "-" + str(now)
 archive_name = os.path.expanduser(os.path.join(dest_folder + zipf))
 root_dir = os.path.expanduser(os.path.join(dest_folder))
 make_archive(archive_name, 'zip', root_dir)
-
 
 for fname in os.listdir(dest_folder):
 	if fname.endswith(".xlsm"):
