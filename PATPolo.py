@@ -1,9 +1,13 @@
 import xlrd
 import openpyxl
+from openpyxl import Workbook
+from openpyxl.drawing.image import Image
 import sys
 from shutil import make_archive
 import os
 import datetime 
+import re
+
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -16,7 +20,7 @@ def calculate_vm_count(build_plan_path):
 	global title_list
 
 	# gather the vm_type
-	pt = openpyxl.load_workbook(preload_path)
+	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
 
@@ -72,7 +76,7 @@ def change_general(preload_path, build_plan_path, count):
 		- initiates changes for General tab in preload template
 	"""
 	# find module type
-	pt = openpyxl.load_workbook(preload_path)
+	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
 
@@ -247,7 +251,7 @@ def change_probe_prod(preload_path, build_plan_path):
 	# scan through common parameters, replace cell next to probe_prod
 	# open workbook and specify which sheet you would like to access
 
-	pt = openpyxl.load_workbook(preload_path)
+	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = pt[u'VMs']
 	vm_type_for_probe_prod = ws['B7'].value
 
@@ -255,7 +259,7 @@ def change_probe_prod(preload_path, build_plan_path):
 	sheet_names = wb.sheet_names()
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
-	wb = openpyxl.load_workbook(preload_path, keep_vba=True)
+	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		if (tag_sheet.cell_value(i, 1) == "probe_pod"):
@@ -282,15 +286,18 @@ def change_vccn(preload_path, build_plan_path):
 	# creates dict of vm-types and vf-module-names
 	vccn_dict = {}
 	for i in range(bp.nrows):
-		vm = bp.cell_value(i, col_ref_vmt)
-		vccn = bp.cell_value(i, col_ref_vccn)
-		vccn_dict[vm] = vccn
+		try:
+			vm = bp.cell_value(i, col_ref_vmt)
+			vccn = bp.cell_value(i, col_ref_vccn)
+			vccn_dict[vm] = vccn
+		except:
+			pass
 
 	# update probe pod in tag values NOT general tab
 	# get vm type
 	# scan through common parameters, replace cell next to probe_prod
 	# open workbook and specify which sheet you would like to access
-	pt = openpyxl.load_workbook(preload_path)
+	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = pt[u'VMs']
 	vm_type_for_vccn = ws['B7'].value
 
@@ -298,7 +305,7 @@ def change_vccn(preload_path, build_plan_path):
 	sheet_names = wb.sheet_names()
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
-	wb = openpyxl.load_workbook(preload_path, keep_vba=True)
+	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		if (tag_sheet.cell_value(i, 1) == "vertica_configuration_cluster_name"):
@@ -338,7 +345,7 @@ def change_tag(preload_path, build_plan_path):
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
 	# implement changes to template
-	wb = openpyxl.load_workbook(preload_path, keep_vba=True)
+	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'Tag-values']
 	for k, v in tag_dict.items():
 		for i in range(tag_sheet.nrows):
@@ -353,12 +360,12 @@ def change_vm(preload_path, build_plan_path, count):
 		- initates changes for VM's tab
 	"""
 	# check vm-type
-	pt = openpyxl.load_workbook(preload_path)
+	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
 
 	# grab values for vm-name and calculate appropriate suffix
-	wb = openpyxl.load_workbook(preload_path)
+	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'General']
 	vnf_name_general = ws['C12'].value 
 
@@ -394,7 +401,7 @@ def change_vm(preload_path, build_plan_path, count):
 			else:
 				vm_name_val = vnf_name_general + v + "0" + count
 
-	wb = openpyxl.load_workbook(preload_path, keep_vba=True)
+	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'VMs']
 	ws['C7'].value = vm_name_val
 
@@ -407,7 +414,7 @@ def change_az(preload_path, build_plan_path):
 	"""
 	# open workbook and specify which sheet you would like to access
 	# save vm_name
-	pt = openpyxl.load_workbook(preload_path)
+	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = pt[u'VMs']
 	vm_name_value = ws['C7'].value
 
@@ -434,7 +441,7 @@ def change_az(preload_path, build_plan_path):
 		az_dict[vm_names] = az
 
 	# instantiates changes based on key, replaces cell with value
-	wb = openpyxl.load_workbook(preload_path)
+	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'Availability-zones']	
 	for k, v in az_dict.items():
 		if k == vm_name_value:
@@ -706,7 +713,7 @@ def tag_sheet_indexes(preload_path, build_plan_path, count):
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
 	# instantiate changes to template by iterating through all rows and replacing keys with corresponding values
-	wb = openpyxl.load_workbook(preload_path)
+	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		if(tag_sheet.cell_value(i, 1).endswith("index")):
@@ -751,35 +758,122 @@ def change_ips(preload_path, build_plan_path):
 			if bp.cell_value(i,j) == "oam_protected":
 				col_ref_oam_ip = j
 
-			if bp.cell_value(i,j) == "pktmirror_0_ip_0":
-				col_ref_pktmirror_0_ip_0 = j
+			if bp.cell_value(i,j) == "pktinternal_1_ip_0":
+				col_ref_pktinternal_1_ip_0 = j
+
+			if bp.cell_value(i,j) == "pktinternal_2_ip_0":
+				col_ref_pktinternal_2_ip_0 = j
 			
-			if bp.cell_value(i,j) == "sd_vprobe1_0_ip":
+			if bp.cell_value(i,j) == "sd_vprobe1_ip_0":
 				col_ref_sd_vprobe1_0_ip = j
 			
-			if bp.cell_value(i,j) == "sd_vprobe2_0_ip":
-				col_ref_sd_vprobe2_0_ip = j	
+			if bp.cell_value(i,j) == "sd_vprobe2_ip_0":
+				col_ref_sd_vprobe2_0_ip = j
 			
-			if bp.cell_value(i,j) == "vprobe1_0_ip":
+			if bp.cell_value(i,j) == "vprobe1_ip_0":
 				col_ref_vprobe1_0_ip = j
 			
-			if bp.cell_value(i,j) == "vprobe2_0_ip":
+			if bp.cell_value(i,j) == "vprobe2_ip_0":
 				col_ref_vprobe2_0_ip = j
 
+			if bp.cell_value(i,j) == "sd_vprobe1_cidr":
+				col_ref_sd_vprobe1_cidr = j
+			
+			if bp.cell_value(i,j) == "sd_vprobe2_cidr":
+				col_ref_sd_vprobe2_cidr = j
+
+			if bp.cell_value(i,j) == "vprobe1_cidr":
+				col_ref_vprobe1_cidr = j
+			
+			if bp.cell_value(i,j) == "vprobe2_cidr":
+				col_ref_vprobe2_cidr = j
 
 	# create dictionaries of vm-names and ip's
-	pktmirror_0_ip_0_dict = {}
+
+	vprobe1_cidr_dict = {}
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
-			pkt = bp.cell_value(i, col_ref_pktmirror_0_ip_0)
-			if vm_name in pktmirror_0_ip_0_dict:
-				pktmirror_0_ip_0_dict[vm_name].append(pkt)
+			vp1cidr = bp.cell_value(i, col_ref_vprobe1_cidr)
+			if vm_name in vprobe1_cidr_dict:
+				vprobe1_cidr_dict[vm_name].append(vp1cidr)
 			else:
-				pktmirror_0_ip_0_dict[vm_name] = [pkt]
+				vprobe1_cidr_dict[vm_name] = [vp1cidr]
 		except:
 			pass
-	pktmirror_0_ip_0_dict = {k: ",".join(str(x) for x in v) for k,v in pktmirror_0_ip_0_dict.items()}
+	vprobe1_cidr_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe1_cidr_dict.items()}
+
+	vprobe2_cidr_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			vp2cidr = bp.cell_value(i, col_ref_vprobe2_cidr)
+			if vm_name in vprobe2_cidr_dict:
+				vprobe1_cidr_dict[vm_name].append(vp2cidr)
+			else:
+				vprobe1_cidr_dict[vm_name] = [vp2cidr]
+		except:
+			pass
+	vprobe2_cidr_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe2_cidr_dict.items()}
+
+
+
+	sd_vprobe1_cidr_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			vp1cidr = bp.cell_value(i, col_ref_sd_vprobe1_cidr)
+			if vm_name in sd_vprobe1_cidr_dict:
+				vprobe1_cidr_dict[vm_name].append(vp1cidr)
+			else:
+				vprobe1_cidr_dict[vm_name] = [vp1cidr]
+		except:
+			pass
+	sd_vprobe1_cidr_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe1_cidr_dict.items()}
+
+	sd_vprobe2_cidr_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			vp2cidr = bp.cell_value(i, col_ref_sd_vprobe2_cidr)
+			if vm_name in sd_vprobe2_cidr_dict:
+				vprobe1_cidr_dict[vm_name].append(vp2cidr)
+			else:
+				vprobe1_cidr_dict[vm_name] = [vp2cidr]
+		except:
+			pass
+	sd_vprobe2_cidr_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe2_cidr_dict.items()}
+
+	pktinternal_1_ip_0_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			pkt = bp.cell_value(i, col_ref_pktinternal_1_ip_0)
+			if vm_name in pktinternal_1_ip_0_dict:
+				pktinternal_1_ip_0_dict[vm_name].append(pkt)
+			else:
+				pktinternal_1_ip_0_dict[vm_name] = [pkt]
+		except:
+			pass
+	pktinternal_1_ip_0_dict = {k: ",".join(str(x) for x in v) for k,v in pktinternal_1_ip_0_dict.items()}
+
+	pktinternal_2_ip_0_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			pkt = bp.cell_value(i, col_ref_pktinternal_2_ip_0)
+			if vm_name in pktinternal_2_ip_0_dict:
+				pktinternal_2_ip_0_dict[vm_name].append(pkt)
+			else:
+				pktinternal_2_ip_0_dict[vm_name] = [pkt]
+		except:
+			pass
+	pktinternal_2_ip_0_dict = {k: ",".join(str(x) for x in v) for k,v in pktinternal_2_ip_0_dict.items()}
+
+	#print("pktinternal_1_ip_0_dict ", pktinternal_1_ip_0_dict)
+	#print("pktinternal_2_ip_0_dict ", pktinternal_2_ip_0_dict)
+
+
 
 	pkt0_dict = {}
 	for i in range(bp.nrows):
@@ -848,7 +942,6 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	sd_vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe1_0_ip_dict.items()}
-	#print("sd_vprobe1_0_ip_dict: ", sd_vprobe1_0_ip_dict)
 
 	sd_vprobe2_0_ip_dict = {}
 	for i in range(bp.nrows):
@@ -862,17 +955,16 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	sd_vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe2_0_ip_dict.items()}
-	#print("sd_vprobe2_0_ip_dict: ", sd_vprobe2_0_ip_dict)
 
 	vprobe1_0_ip_dict = {}
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
-			vprobe1_0_ips = bp.cell_value(i, col_ref_vprobe1_0_ip)
+			vprobe1_ip_0_ips = bp.cell_value(i, col_ref_vprobe1_0_ip)
 			if vm_type in vprobe1_0_ip_dict:
-				vprobe1_0_ip_dict[vm_name].append(vprobe1_0_ips)
+				vprobe1_0_ip_dict[vm_name].append(vprobe1_ip_0_ips)
 			else:
-				vprobe1_0_ip_dict[vm_name] = [vprobe1_0_ips]
+				vprobe1_0_ip_dict[vm_name] = [vprobe1_ip_0_ips]
 		except:
 			pass
 	vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe1_0_ip_dict.items()}
@@ -881,18 +973,30 @@ def change_ips(preload_path, build_plan_path):
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
-			vprobe2_0_ips = bp.cell_value(i, col_ref_vprobe2_0_ip)
+			vprobe2_ip_0_ips = bp.cell_value(i, col_ref_vprobe2_0_ip)
 			if vm_type in vprobe2_0_ip_dict:
-				vprobe2_0_ip_dict[vm_name].append(vprobe2_0_ips)
+				vprobe2_0_ip_dict[vm_name].append(vprobe2_ip_0_ips)
 			else:
-				vprobe2_0_ip_dict[vm_name] = [vprobe2_0_ips]
+				vprobe2_0_ip_dict[vm_name] = [vprobe2_ip_0_ips]
 		except:
 			pass
 	vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe2_0_ip_dict.items()}
-	
 
 	# create dictionary of dictionaries
-	ip_dict = {"pktinternal_0_ip_0" : pkt0_dict , "pktinternal_1_ip_0" : pkt1_dict, "cdr_direct_bond_ip" : cdr_direct_dict, "oam_protected_ips" : oam_dict, "pktmirror_0_ip_0" : pktmirror_0_ip_0_dict, "sd_vprobe1_0_ip" : sd_vprobe1_0_ip_dict, "sd_vprobe2_0_ip" : sd_vprobe2_0_ip_dict, "vprobe1_0_ip" : vprobe1_0_ip_dict, "vprobe2_0_ip" : vprobe2_0_ip_dict}
+	ip_dict = {
+			"cdr_direct_bond_ip" : cdr_direct_dict, 
+		   	"oam_protected_ips" : oam_dict, 
+			"pktinternal_1_ip_0" : pktinternal_1_ip_0_dict,
+			"pktinternal_2_ip_0" : pktinternal_2_ip_0_dict,
+			"sd_vprobe1_ip_0" : sd_vprobe1_0_ip_dict, 
+			"sd_vprobe2_ip_0" : sd_vprobe2_0_ip_dict, 
+			"sd_vprobe1_cidr" : sd_vprobe1_cidr_dict, 
+			"sd_vprobe2_cidr" : sd_vprobe2_cidr_dict, 
+			"vprobe1_ip_0" : vprobe1_0_ip_dict, 
+			"vprobe2_ip_0" : vprobe2_0_ip_dict, 
+			"vprobe1_cidr" : vprobe1_cidr_dict, 
+			"vprobe2_cidr" : vprobe2_cidr_dict
+		  }
 	
 
 	# open workbook and specify which sheet you would like to access
@@ -900,7 +1004,7 @@ def change_ips(preload_path, build_plan_path):
 	sheet_names = wb.sheet_names()
 	tag_sheet = wb.sheet_by_name(u'Tag-values')
 
-	pt = openpyxl.load_workbook(preload_path)
+	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
 	vm_type = str(vm_type)
@@ -908,16 +1012,16 @@ def change_ips(preload_path, build_plan_path):
 	vm_name = ws['C7'].value
 	vm_name = str(vm_name)
 
-	wb = openpyxl.load_workbook(preload_path)
+	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		for k, v in ip_dict.items():
-			#if k in tag_sheet.cell_value(i, 1):
-			if tag_sheet.cell_value(i, 1).startswith(k) or tag_sheet.cell_value(i, 1).endswith(k):
-				for k1, v1 in v.items():
-					if k1 == vm_type or k1 == vm_name:
-						val = str(i+1)
-						ws['C' + val].value = v1
+			if tag_sheet.cell_value(i, 1).endswith(k):
+				if k in tag_sheet.cell_value(i, 1):
+					for k1, v1 in v.items():
+						if k1 == vm_type or k1 == vm_name:
+							val = str(i+1)
+							ws['C' + val].value = v1
 	wb.save(preload_path)
 
 ## CHECKS AND VALIDATION ##
@@ -1075,12 +1179,12 @@ for preload_path in preload_list:
 			tag_sheet_indexes(preload_path, build_plan_path, str(titles))
 			change_ips(preload_path, build_plan_path)
 
-			wb = openpyxl.load_workbook(preload_path, keep_vba=True)	
+			wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)	
 			wb.save(dest_folder + title_list[titles] + str(titles+1) + ".xlsm")
 
 
 # datetime object containing current date and time
-now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 name = dest_folder.rsplit('/')[-2]
 zipf = name + "-" + str(now)
 archive_name = os.path.expanduser(os.path.join(dest_folder + zipf))
