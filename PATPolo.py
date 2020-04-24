@@ -1016,8 +1016,8 @@ def change_ips(preload_path, build_plan_path):
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		for k, v in ip_dict.items():
-			if tag_sheet.cell_value(i, 1).endswith(k):
-				if k in tag_sheet.cell_value(i, 1):
+			if re.match(k, tag_sheet.cell_value(i, 1)) or k in tag_sheet.cell_value(i, 1):
+			#if k in tag_sheet.cell_value(i, 1): #and tag_sheet.cell_value(i, 1).endswith(k):
 					for k1, v1 in v.items():
 						if k1 == vm_type or k1 == vm_name:
 							val = str(i+1)
