@@ -678,7 +678,9 @@ def names_tag_sheet(preload_path, build_plan_path):
 					"qloader" : ldr_list ,
 					"cognoscgw" : cgw_list ,
 					"daemon" : dmn_list ,
-					"apigw" : agw_list 
+					"apigw" : agw_list,
+					"qtraceprocessingregional" : qtp_list,
+					"qtracelbregional" : qlb_list
 				}
 
 	# take vm type
@@ -997,7 +999,7 @@ def change_ips(preload_path, build_plan_path):
 			"vprobe1_cidr" : vprobe1_cidr_dict, 
 			"vprobe2_cidr" : vprobe2_cidr_dict
 		  }
-	
+		  
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
@@ -1016,7 +1018,7 @@ def change_ips(preload_path, build_plan_path):
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		for k, v in ip_dict.items():
-			if re.match(k, tag_sheet.cell_value(i, 1)) or k in tag_sheet.cell_value(i, 1):
+			if re.search(k, tag_sheet.cell_value(i, 1)):# or k in tag_sheet.cell_value(i, 1):
 			#if k in tag_sheet.cell_value(i, 1): #and tag_sheet.cell_value(i, 1).endswith(k):
 					for k1, v1 in v.items():
 						if k1 == vm_type or k1 == vm_name:
@@ -1184,6 +1186,8 @@ for preload_path in preload_list:
 
 
 # datetime object containing current date and time
+
+
 now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 name = dest_folder.rsplit('/')[-2]
 zipf = name + "-" + str(now)
@@ -1195,3 +1199,5 @@ make_archive(archive_name, 'tar', root_dir)
 for fname in os.listdir(dest_folder):
 	if fname.endswith(".xlsm"):
 		os.remove(os.path.join(dest_folder, fname))
+
+
