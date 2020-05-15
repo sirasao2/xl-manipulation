@@ -766,16 +766,16 @@ def change_ips(preload_path, build_plan_path):
 			if bp.cell_value(i,j) == "pktinternal_2_ip_0":
 				col_ref_pktinternal_2_ip_0 = j
 			
-			if bp.cell_value(i,j) == "sd_vprobe1_ip_0":
+			if bp.cell_value(i,j) == "sd_vprobe1_0_ip_0":
 				col_ref_sd_vprobe1_0_ip = j
 			
-			if bp.cell_value(i,j) == "sd_vprobe2_ip_0":
+			if bp.cell_value(i,j) == "sd_vprobe2_0_ip_0":
 				col_ref_sd_vprobe2_0_ip = j
 			
-			if bp.cell_value(i,j) == "vprobe1_ip_0":
+			if bp.cell_value(i,j) == "vprobe1_0_ip_0":
 				col_ref_vprobe1_0_ip = j
 			
-			if bp.cell_value(i,j) == "vprobe2_ip_0":
+			if bp.cell_value(i,j) == "vprobe2_0_ip_0":
 				col_ref_vprobe2_0_ip = j
 
 			if bp.cell_value(i,j) == "sd_vprobe1_cidr":
@@ -789,6 +789,8 @@ def change_ips(preload_path, build_plan_path):
 			
 			if bp.cell_value(i,j) == "vprobe2_cidr":
 				col_ref_vprobe2_cidr = j
+	#print(col_ref_vprobe1_0_ip)
+	#print(col_ref_vprobe2_0_ip)
 
 	# create dictionaries of vm-names and ip's
 
@@ -970,6 +972,7 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe1_0_ip_dict.items()}
+	#print("DICT: ", vprobe1_0_ip_dict)
 
 	vprobe2_0_ip_dict = {}
 	for i in range(bp.nrows):
@@ -983,6 +986,7 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe2_0_ip_dict.items()}
+	#print("DICT: ", vprobe2_0_ip_dict )
 
 	# create dictionary of dictionaries
 	ip_dict = {
@@ -990,14 +994,14 @@ def change_ips(preload_path, build_plan_path):
 		   	"oam_protected_ips" : oam_dict, 
 			"pktinternal_1_ip_0" : pktinternal_1_ip_0_dict,
 			"pktinternal_2_ip_0" : pktinternal_2_ip_0_dict,
-			"sd_vprobe1_ip_0" : sd_vprobe1_0_ip_dict, 
-			"sd_vprobe2_ip_0" : sd_vprobe2_0_ip_dict, 
-			"sd_vprobe1_cidr" : sd_vprobe1_cidr_dict, 
-			"sd_vprobe2_cidr" : sd_vprobe2_cidr_dict, 
-			"vprobe1_ip_0" : vprobe1_0_ip_dict, 
-			"vprobe2_ip_0" : vprobe2_0_ip_dict, 
-			"vprobe1_cidr" : vprobe1_cidr_dict, 
-			"vprobe2_cidr" : vprobe2_cidr_dict
+			"sd_vprobe1_0_ip_0" : sd_vprobe1_0_ip_dict, 
+			"sd_vprobe2_0_ip_0" : sd_vprobe2_0_ip_dict, 
+			"sd_vprobe1_0_cidr" : sd_vprobe1_cidr_dict, 
+			"sd_vprobe2_0_cidr" : sd_vprobe2_cidr_dict, 
+			"vprobe1_0_ip_0" : vprobe1_0_ip_dict, 
+			"vprobe2_0_ip_0" : vprobe2_0_ip_dict, 
+			"vprobe1_0_cidr" : vprobe1_cidr_dict, 
+			"vprobe2_0_cidr" : vprobe2_cidr_dict
 		  }
 		  
 
