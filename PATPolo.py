@@ -548,9 +548,12 @@ def names_tag_sheet(preload_path, build_plan_path):
 	cgw_list = []
 	dmn_list = []
 	agw_list = []
+	ricn_list = []
 
 
 	for i in range(bp.nrows):
+		if "ricn" in bp.cell_value(i, col_ref_vmn):
+			ricn_list.append(bp.cell_value(i, col_ref_vmn))
 		if "prb" in bp.cell_value(i, col_ref_vmn):
 			prb_list.append(bp.cell_value(i, col_ref_vmn))
 		if "qrt" in bp.cell_value(i, col_ref_vmn):
@@ -613,6 +616,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 			agw_list.append(bp.cell_value(i, col_ref_vmn))
 
 	# removes brackets and white spaces
+	ricn_list = ('[%s]' % ','.join(map(str, ricn_list)))[1:-1]
 	prb_list = ('[%s]' % ','.join(map(str, prb_list)))[1:-1]
 	qrt_list = ('[%s]' % ','.join(map(str, qrt_list)))[1:-1]
 	lba_list = ('[%s]' % ','.join(map(str, lba_list)))[1:-1]
@@ -648,7 +652,8 @@ def names_tag_sheet(preload_path, build_plan_path):
 
 	# creates a dict of the vm-type values and the above lists
 	names_dict = {
-					"vlbagent_eph" : lba_list, 
+					"vlbagent_eph" : lba_list,
+					"icon_eph" : ricn_list, 
 					"vlbagent_eph_aff" : lba_list,
 					"vprb" : prb_list, 
 					"vprobe_eph_aff" : prb_list, 
@@ -959,6 +964,7 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	sd_vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe2_0_ip_dict.items()}
+	#print("sd vprobe 2 DICT: ", sd_vprobe2_0_ip_dict)
 
 	vprobe1_0_ip_dict = {}
 	for i in range(bp.nrows):
@@ -996,12 +1002,12 @@ def change_ips(preload_path, build_plan_path):
 			"pktinternal_2_ip_0" : pktinternal_2_ip_0_dict,
 			"sd_vprobe1_0_ip_0" : sd_vprobe1_0_ip_dict, 
 			"sd_vprobe2_0_ip_0" : sd_vprobe2_0_ip_dict, 
-			"sd_vprobe1_0_cidr" : sd_vprobe1_cidr_dict, 
-			"sd_vprobe2_0_cidr" : sd_vprobe2_cidr_dict, 
+			#"sd_vprobe1_0_cidr" : sd_vprobe1_cidr_dict, 
+			#"sd_vprobe2_0_cidr" : sd_vprobe2_cidr_dict, 
 			"vprobe1_0_ip_0" : vprobe1_0_ip_dict, 
 			"vprobe2_0_ip_0" : vprobe2_0_ip_dict, 
-			"vprobe1_0_cidr" : vprobe1_cidr_dict, 
-			"vprobe2_0_cidr" : vprobe2_cidr_dict
+			#"vprobe1_0_cidr" : vprobe1_cidr_dict, 
+			#"vprobe2_0_cidr" : vprobe2_cidr_dict
 		  }
 		  
 
@@ -1022,12 +1028,22 @@ def change_ips(preload_path, build_plan_path):
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
 		for k, v in ip_dict.items():
-			if re.search(k, tag_sheet.cell_value(i, 1)):# or k in tag_sheet.cell_value(i, 1):
-			#if k in tag_sheet.cell_value(i, 1): #and tag_sheet.cell_value(i, 1).endswith(k):
-					for k1, v1 in v.items():
-						if k1 == vm_type or k1 == vm_name:
-							val = str(i+1)
-							ws['C' + val].value = v1
+			if re.findall(k, tag_sheet.cell_value(i, 1)): 
+				for k1, v1 in v.items():
+					if k1 == vm_type or k1 == vm_name:
+						val = str(i+1)
+						ws['C' + val].value = v1
+			if tag_sheet.cell_value(i, 1).startswith("sd_vprobe1_0_ip_0"):
+				for k1, v1 in sd_vprobe1_0_ip_dict.items():
+					if k1 == vm_name:
+						val = str(i+1)
+						ws['C' + val].value = v1
+			if tag_sheet.cell_value(i, 1).startswith("sd_vprobe2_0_ip_0"):
+				for k1, v1 in sd_vprobe2_0_ip_dict.items():
+					if k1 == vm_name:
+						val = str(i+1)
+						ws['C' + val].value = v1
+		
 	wb.save(preload_path)
 
 ## CHECKS AND VALIDATION ##
@@ -1156,7 +1172,7 @@ def check_vm(build_plan_path):
 
 build_plan_path = sys.argv[1]
 #check_vnf_specs_headers(build_plan_path)
-check_vm_layout_headers(build_plan_path)
+#check_vm_layout_headers(build_plan_path)
 #check_vm(build_plan_path)
 
 preload_list = []
@@ -1194,7 +1210,7 @@ for preload_path in preload_list:
 
 now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 name = dest_folder.rsplit('/')[-2]
-zipf = name + "-" + str(now)
+zipf = name #+ "-" + str(now)
 archive_name = os.path.expanduser(os.path.join(dest_folder + zipf))
 root_dir = os.path.expanduser(os.path.join(dest_folder))
 make_archive(archive_name, 'tar', root_dir)
