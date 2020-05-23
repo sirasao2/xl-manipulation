@@ -1069,13 +1069,14 @@ def check_vnf_specs_headers(build_plan_path):
 	compare_iterator = []
 	for i in range(bp.nrows):
 		for j in range(bp.ncols):
-			compare_iterator.append(bp.cell_value(row_ref_vmt, j)) 
+			compare_iterator.append(bp.cell_value(row_ref_vmt, j))
+	#print(compare_iterator)
 
 	if len(list(set(vnf_specs_headers_needed) - set(compare_iterator))) == 0:
 		print("You have all correct headers in VNF-Specs.")
 		print("\n")
 	else:
-		print("You are missing: ", list(set(vnf_specs_headers_needed) - set(compare_iterator)), "from VNF-Specs headers. Please append this to VNF-Specs tab.")
+		print("You are missing: ", list(set(vnf_specs_headers_needed) - set(compare_iterator)), "from VNF-Specs headers. If you need these values, please append this to VNF-Specs tab.")
 		print("\n")
 
 def check_vm_layout_headers(build_plan_path):
@@ -1096,7 +1097,9 @@ def check_vm_layout_headers(build_plan_path):
 			if bp.cell_value(i, j) == "vm-type":
 				row_ref_vmt = i
 
-	vm_layout_headers_needed= ['VM Name', 'vm-type', 'nf_naming_code\n(VF Level) VVVV Code', 'VNF Type (tt)', 'VFC ID (ppp)', 'VM Instance #', 'vm-name', 'AZ:Compute', 'cdr_direct_bond_ip', 'pktinternal_0_ip', 'pktinternal_1_ip', 'pktmirror_0_ip_0', 'oam_protected', 'oam_direct', 'ext_pktinternal_ip', 'vfl_pktinternal_0_ip']
+	vm_layout_headers_needed= ['VM Name', 'vm-type', 'nf_naming_code\n(VF Level) VVVV Code',	'VNF Type (tt)', 'VFC ID (ppp)', 'VM Instance #', 'vm-name', 'AZ:Compute', 'cdr_direct_bond_ip', 'pktinternal_1_ip_0', 'pktinternal_2_ip_0', 'pktmirror_0_ip_0', 'oam_protected', 'oam_direct', 'ext_pktinternal_ip', 'vfl_pktinternal_0_ip', 'sd_vprobe1_0_ip_0', 'sd_vprobe2_0_ip_0', 'vprobe1_0_ip_0', 'vprobe2_0_ip_0']
+
+
 	compare_iterator = []
 	for i in range(bp.nrows):
 		for j in range(bp.ncols):
@@ -1106,64 +1109,8 @@ def check_vm_layout_headers(build_plan_path):
 		print("You have all correct headers in VM-Layout.")
 		print("\n")
 	else:
-		print("You are missing: ", list(set(vm_layout_headers_needed) - set(compare_iterator)), "from VM-Layout headers. Please append this to VM-Layout tab.")
+		print("You are missing: ", list(set(vm_layout_headers_needed) - set(compare_iterator)), "from VM-Layout headers. If you need these values, please append this to VM-Layout tab.")
 		print("\n")
-
-def check_vm(build_plan_path):
-	# This function will check to see if the vnf-name in VNF-Specs STARTS the values of vm-name in the 
-	# VM-Layout Tab. If there is a mismatch, code will not execute.
-
-	# save all values of vnf-names in VNF-Specs
-	# open workbook and specify which sheet you would like to access
-	wb = xlrd.open_workbook(build_plan_path)
-	sheet_names = wb.sheet_names()
-	bp = wb.sheet_by_name(u'VNF-Specs')
-
-	# string search VM-Layout column headers and assign each columns reference position (int) to a variable
-	# this avoids hard coding the position of certain columns
-	# order does not matter
-	vnf_name_list = []
-	for i in range(bp.nrows):
-		for j in range(bp.ncols):
-			if bp.cell_value(i, j) == "vnf-name":
-				row_ref_vmt = i
-				col_ref_vmt = j
-
-	for i in range(bp.nrows):
-		vnf_name_list.append(bp.cell_value(i, col_ref_vmt))
-	vnf_name_list = (list(filter(None, vnf_name_list)))
-	vnf_name_list = vnf_name_list[1:]
-	#print(vnf_name_list)
-
-
-	# do the same for VM LAYOUT
-	wb = xlrd.open_workbook(build_plan_path)
-	sheet_names = wb.sheet_names()
-	bp = wb.sheet_by_name(u'VM-Layout')
-
-	# string search VM-Layout column headers and assign each columns reference position (int) to a variable
-	# this avoids hard coding the position of certain columns
-	# order does not matter
-	vm_name_list = []
-	for i in range(bp.nrows):
-		for j in range(bp.ncols):
-			if bp.cell_value(i, j) == "vm-name":
-				row_ref_vmt = i
-				col_ref_vmt = j
-
-	for i in range(bp.nrows):
-		vm_name_list.append(bp.cell_value(i, col_ref_vmt))
-	vm_name_list = (list(filter(None, vm_name_list)))
-	vm_name_list = vm_name_list[1:]
-	#print(vm_name_list)
-
-	for i in vm_name_list:
-		if vnf_name_list[0] in i:
-			return 
-		else:
-			print("Please make sure that your vm-names in VM-Layout start with vnf-name values from VNF-Specs sheet.")
-			print("\n")
-			break
 
 
 ##########################################################################################################################
@@ -1171,8 +1118,8 @@ def check_vm(build_plan_path):
 
 
 build_plan_path = sys.argv[1]
-#check_vnf_specs_headers(build_plan_path)
-#check_vm_layout_headers(build_plan_path)
+check_vnf_specs_headers(build_plan_path)
+check_vm_layout_headers(build_plan_path)
 #check_vm(build_plan_path)
 
 preload_list = []
