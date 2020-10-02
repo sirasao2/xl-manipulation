@@ -650,7 +650,6 @@ def names_tag_sheet(preload_path, build_plan_path):
 	dmn_list = ('[%s]' % ','.join(map(str, dmn_list)))[1:-1]
 	agw_list = ('[%s]' % ','.join(map(str, agw_list)))[1:-1]
 	
-	#print("imm list: ", imm_list)
 
 	# creates a dict of the vm-type values and the above lists
 
@@ -668,7 +667,8 @@ def names_tag_sheet(preload_path, build_plan_path):
 			"microservices" : msr_list ,
 			"cognoscdp" : cdp_list ,
 			"kuberik_aff" : aku_list ,
-			"processing" : mbm_list ,
+			#"processing" : mbm_list ,
+			#"processing" : imm_list,
 			"timesten" : ttn_list ,
 			"managementui" : mgu_list ,
 			"conductor" : con_list ,
@@ -694,8 +694,13 @@ def names_tag_sheet(preload_path, build_plan_path):
 			"qtracelbregional" : qlb_list
 		}
 
-	names_dict["processing"] = imm_list
-		
+	if(len(mbm_list) > 0):
+		names_dict["processing"] = mbm_list
+	else:
+		names_dict["processing"] = imm_list
+			
+	#print(names_dict)
+
 
 	# take vm type
 	pt = openpyxl.load_workbook(preload_path)
