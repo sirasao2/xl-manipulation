@@ -400,6 +400,7 @@ def change_vm(preload_path, build_plan_path, count):
 				vm_name_val = vnf_name_general + v + "00" + count
 			else:
 				vm_name_val = vnf_name_general + v + "0" + count
+	#print("VAL: ", preload_path, vm_name_val)
 
 	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'VMs']
@@ -549,6 +550,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 	dmn_list = []
 	agw_list = []
 	ricn_list = []
+	
 
 
 	for i in range(bp.nrows):
@@ -647,46 +649,53 @@ def names_tag_sheet(preload_path, build_plan_path):
 	cgw_list = ('[%s]' % ','.join(map(str, cgw_list)))[1:-1]
 	dmn_list = ('[%s]' % ','.join(map(str, dmn_list)))[1:-1]
 	agw_list = ('[%s]' % ','.join(map(str, agw_list)))[1:-1]
-
-
+	
+	#print("imm list: ", imm_list)
 
 	# creates a dict of the vm-type values and the above lists
+
 	names_dict = {
-					"vlbagent_eph" : lba_list,
-					"icon_eph" : ricn_list, 
-					"vlbagent_eph_aff" : lba_list,
-					"vprb" : prb_list, 
-					"vprobe_eph_aff" : prb_list, 
-					"qrouter" : qrt_list, 
-					"vlb" : vlb_list,
-					"analyst" : ana_list ,
-					"microservices" : msr_list ,
-					"cognoscdp" : cdp_list ,
-					"kuberik_aff" : aku_list ,
-					"processing_eph" : mbm_list ,
-					"timesten" : ttn_list ,
-					"managementui" : mgu_list ,
-					"conductor" : con_list ,
-					"qtraceprocessing_eph" : qtp_list ,
-					"cognosccm" : ccm_list ,
-					"qtracelb" : qlb_list ,
-					"gaurdian" : gdn_list ,
-					"schemamanager" : dbm_list ,
-					"kafka" : akf_list ,
-					"distributedlock" : dtl_list ,
-					"scheduledservices" : ssr_list ,
-					"vertica_multi_aff" : vdb_list ,
-					"logfilter_eph" : log_list ,
-					"rpmrepository" : srp_list ,
-					"configurationrepository" : crp_list ,
-					"settingsandhealthdb_eph" : shd_list ,
-					"qloader" : ldr_list ,
-					"cognoscgw" : cgw_list ,
-					"daemon" : dmn_list ,
-					"apigw" : agw_list,
-					"qtraceprocessingregional" : qtp_list,
-					"qtracelbregional" : qlb_list
-				}
+			"vlbagent" : lba_list,
+			"vlbagent_eph" : lba_list,
+			"icon" : ricn_list, 
+			"vlbagent_eph_aff" : lba_list,
+			"icon_eph" : ricn_list,
+			"vprb" : prb_list, 
+			"vprobe_eph_aff" : prb_list, 
+			"qrouter" : qrt_list, 
+			"vlb" : vlb_list,
+			"analyst" : ana_list ,
+			"microservices" : msr_list ,
+			"cognoscdp" : cdp_list ,
+			"kuberik_aff" : aku_list ,
+			"processing" : mbm_list ,
+			"timesten" : ttn_list ,
+			"managementui" : mgu_list ,
+			"conductor" : con_list ,
+			"qtraceprocessing_eph" : qtp_list ,
+			"qtraceprocessing" : qtp_list ,
+			"cognosccm" : ccm_list ,
+			"qtracelb" : qlb_list ,
+			"gaurdian" : gdn_list ,
+			"schemamanager" : dbm_list ,
+			"kafka" : akf_list ,
+			"distributedlock" : dtl_list ,
+			"scheduledservices" : ssr_list ,
+			"vrtcdb" : vdb_list ,
+			"logfilter_eph" : log_list ,
+			"rpmrepository" : srp_list ,
+			"configurationrepository" : crp_list ,
+			"settingsandhealthdb_eph" : shd_list ,
+			"qloader" : ldr_list ,
+			"cognoscgw" : cgw_list ,
+			"daemon" : dmn_list ,
+			"apigw" : agw_list,
+			"qtraceprocessingregional" : qtp_list,
+			"qtracelbregional" : qlb_list
+		}
+
+	names_dict["processing"] = imm_list
+		
 
 	# take vm type
 	pt = openpyxl.load_workbook(preload_path)
@@ -705,6 +714,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 		for k, v in names_dict.items():
 			if(tag_sheet.cell_value(i, 1) == (k + "_names") and k != ''):			
 				val = str(i+1)
+				#print("str(v) :", str(v))
 				ws['C' + val].value = str(v) # should this be string
 	wb.save(preload_path)
 
@@ -771,16 +781,16 @@ def change_ips(preload_path, build_plan_path):
 			if bp.cell_value(i,j) == "pktinternal_2_ip_0":
 				col_ref_pktinternal_2_ip_0 = j
 			
-			if bp.cell_value(i,j) == "sd_vprobe1_0_ip_0":
+			if bp.cell_value(i,j) == "sd_vprobe1_ip_0":
 				col_ref_sd_vprobe1_0_ip = j
 			
-			if bp.cell_value(i,j) == "sd_vprobe2_0_ip_0":
+			if bp.cell_value(i,j) == "sd_vprobe2_ip_0":
 				col_ref_sd_vprobe2_0_ip = j
 			
-			if bp.cell_value(i,j) == "vprobe1_0_ip_0":
+			if bp.cell_value(i,j) == "vprobe1_ip_0":
 				col_ref_vprobe1_0_ip = j
 			
-			if bp.cell_value(i,j) == "vprobe2_0_ip_0":
+			if bp.cell_value(i,j) == "vprobe2_ip_0":
 				col_ref_vprobe2_0_ip = j
 
 			if bp.cell_value(i,j) == "sd_vprobe1_cidr":
@@ -794,8 +804,16 @@ def change_ips(preload_path, build_plan_path):
 			
 			if bp.cell_value(i,j) == "vprobe2_cidr":
 				col_ref_vprobe2_cidr = j
-	#print(col_ref_vprobe1_0_ip)
-	#print(col_ref_vprobe2_0_ip)
+
+			if bp.cell_value(i,j) == "cdr_direct_bond_ip":
+				col_ref_cdbi = j
+		
+			if bp.cell_value(i,j) == "vertica_ic_bond_ip":
+				col_ref_vibi = j
+
+
+	#print("col_ref_vprobe1_0_ip: ", col_ref_vprobe1_0_ip)
+
 
 	# create dictionaries of vm-names and ip's
 
@@ -879,11 +897,6 @@ def change_ips(preload_path, build_plan_path):
 			pass
 	pktinternal_2_ip_0_dict = {k: ",".join(str(x) for x in v) for k,v in pktinternal_2_ip_0_dict.items()}
 
-	#print("pktinternal_1_ip_0_dict ", pktinternal_1_ip_0_dict)
-	#print("pktinternal_2_ip_0_dict ", pktinternal_2_ip_0_dict)
-
-
-
 	pkt0_dict = {}
 	for i in range(bp.nrows):
 		try:
@@ -944,7 +957,7 @@ def change_ips(preload_path, build_plan_path):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			sd_vprobe1_0_ips = bp.cell_value(i, col_ref_sd_vprobe1_0_ip)
-			if vm_type in sd_vprobe1_0_ip_dict:
+			if vm_name in sd_vprobe1_0_ip_dict:
 				sd_vprobe1_0_ip_dict[vm_name].append(sd_vprobe1_0_ips)
 			else:
 				sd_vprobe1_0_ip_dict[vm_name] = [sd_vprobe1_0_ips]
@@ -957,7 +970,7 @@ def change_ips(preload_path, build_plan_path):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			sd_vprobe2_0_ips = bp.cell_value(i, col_ref_sd_vprobe2_0_ip)
-			if vm_type in sd_vprobe2_0_ip_dict:
+			if vm_name in sd_vprobe2_0_ip_dict:
 				sd_vprobe2_0_ip_dict[vm_name].append(sd_vprobe2_0_ips)
 			else:
 				sd_vprobe2_0_ip_dict[vm_name] = [sd_vprobe2_0_ips]
@@ -970,13 +983,18 @@ def change_ips(preload_path, build_plan_path):
 	for i in range(bp.nrows):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
+			#print("VM NAME: ", vm_name)
 			vprobe1_ip_0_ips = bp.cell_value(i, col_ref_vprobe1_0_ip)
-			if vm_type in vprobe1_0_ip_dict:
+			#print("IPS : ", vprobe1_ip_0_ips)
+			if vm_name in vprobe1_0_ip_dict:
 				vprobe1_0_ip_dict[vm_name].append(vprobe1_ip_0_ips)
 			else:
 				vprobe1_0_ip_dict[vm_name] = [vprobe1_ip_0_ips]
 		except:
 			pass
+	#for k,v in vprobe1_0_ip_dict.items():
+	#	print("k: ", k)
+	#	print("v: ", v)
 	vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe1_0_ip_dict.items()}
 	#print("DICT: ", vprobe1_0_ip_dict)
 
@@ -985,14 +1003,45 @@ def change_ips(preload_path, build_plan_path):
 		try:
 			vm_name = bp.cell_value(i, col_ref_vmn)
 			vprobe2_ip_0_ips = bp.cell_value(i, col_ref_vprobe2_0_ip)
-			if vm_type in vprobe2_0_ip_dict:
+			if vm_name in vprobe2_0_ip_dict:
 				vprobe2_0_ip_dict[vm_name].append(vprobe2_ip_0_ips)
 			else:
 				vprobe2_0_ip_dict[vm_name] = [vprobe2_ip_0_ips]
 		except:
 			pass
 	vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe2_0_ip_dict.items()}
+
 	#print("DICT: ", vprobe2_0_ip_dict )
+
+	cdr_direct_bond_ip_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			cdbi_ips = bp.cell_value(i, col_ref_cdbi)
+			if vm_name in cdr_direct_bond_ip_dict:
+				cdr_direct_bond_ip_dict[vm_name].append(cdbi_ips)
+			else:
+				cdr_direct_bond_ip_dict[vm_name] = [cdbi_ips]
+		except:
+			pass
+	cdr_direct_bond_ip_dict = {k: ",".join(str(x) for x in v) for k,v in cdr_direct_bond_ip_dict.items()}
+	#print("DICT: ", cdr_direct_bond_ip_dict )
+
+	vertica_ic_bond_ip_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			vibi_ips = bp.cell_value(i, col_ref_vibi)
+			if vm_name in vertica_ic_bond_ip_dict:
+				vertica_ic_bond_ip_dict[vm_name].append(vibi_ips)
+			else:
+				vertica_ic_bond_ip_dict[vm_name] = [vibi_ips]
+		except:
+			pass
+	vertica_ic_bond_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vertica_ic_bond_ip_dict.items()}
+	#print("DICT: ", vertica_ic_bond_ip_dict)
+
+
 
 	# create dictionary of dictionaries
 	ip_dict = {
@@ -1000,12 +1049,14 @@ def change_ips(preload_path, build_plan_path):
 		   	"oam_protected_ips" : oam_dict, 
 			"pktinternal_1_ip_0" : pktinternal_1_ip_0_dict,
 			"pktinternal_2_ip_0" : pktinternal_2_ip_0_dict,
-			"sd_vprobe1_0_ip_0" : sd_vprobe1_0_ip_dict, 
-			"sd_vprobe2_0_ip_0" : sd_vprobe2_0_ip_dict, 
+			"sd_vprobe1_ip_0" : sd_vprobe1_0_ip_dict, 
+			"vprobe1_ip_0" : vprobe1_0_ip_dict, 
+			"vprobe2_ip_0" : vprobe2_0_ip_dict, 
+			"sd_vprobe2_ip_0" : sd_vprobe2_0_ip_dict,
+			"cdr_direct_bond_ip" : cdr_direct_bond_ip_dict,
+			"vertica_ic_bond_ip" : vertica_ic_bond_ip_dict
 			#"sd_vprobe1_0_cidr" : sd_vprobe1_cidr_dict, 
 			#"sd_vprobe2_0_cidr" : sd_vprobe2_cidr_dict, 
-			"vprobe1_0_ip_0" : vprobe1_0_ip_dict, 
-			"vprobe2_0_ip_0" : vprobe2_0_ip_dict, 
 			#"vprobe1_0_cidr" : vprobe1_cidr_dict, 
 			#"vprobe2_0_cidr" : vprobe2_cidr_dict
 		  }
@@ -1033,12 +1084,12 @@ def change_ips(preload_path, build_plan_path):
 					if k1 == vm_type or k1 == vm_name:
 						val = str(i+1)
 						ws['C' + val].value = v1
-			if tag_sheet.cell_value(i, 1).startswith("sd_vprobe1_0_ip_0"):
+			if tag_sheet.cell_value(i, 1).startswith("sd_vprobe1_ip_0"):
 				for k1, v1 in sd_vprobe1_0_ip_dict.items():
 					if k1 == vm_name:
 						val = str(i+1)
 						ws['C' + val].value = v1
-			if tag_sheet.cell_value(i, 1).startswith("sd_vprobe2_0_ip_0"):
+			if tag_sheet.cell_value(i, 1).startswith("sd_vprobe2_ip_0"):
 				for k1, v1 in sd_vprobe2_0_ip_dict.items():
 					if k1 == vm_name:
 						val = str(i+1)
@@ -1097,7 +1148,7 @@ def check_vm_layout_headers(build_plan_path):
 			if bp.cell_value(i, j) == "vm-type":
 				row_ref_vmt = i
 
-	vm_layout_headers_needed= ['VM Name', 'vm-type', 'nf_naming_code\n(VF Level) VVVV Code',	'VNF Type (tt)', 'VFC ID (ppp)', 'VM Instance #', 'vm-name', 'AZ:Compute', 'cdr_direct_bond_ip', 'pktinternal_1_ip_0', 'pktinternal_2_ip_0', 'pktmirror_0_ip_0', 'oam_protected', 'oam_direct', 'ext_pktinternal_ip', 'vfl_pktinternal_0_ip', 'sd_vprobe1_0_ip_0', 'sd_vprobe2_0_ip_0', 'vprobe1_0_ip_0', 'vprobe2_0_ip_0']
+	vm_layout_headers_needed= ['VM Name', 'vm-type', 'nf_naming_code\n(VF Level) VVVV Code','VNF Type (tt)', 'VFC ID (ppp)', 'VM Instance #', 'vm-name', 'AZ:Compute', 'cdr_direct_bond_ip', 'pktinternal_1_ip_0', 'pktinternal_2_ip_0', 'pktmirror_0_ip_0', 'oam_protected', 'oam_direct', 'ext_pktinternal_ip', 'vfl_pktinternal_0_ip', 'sd_vprobe1_ip_0', 'sd_vprobe2_ip_0', 'vprobe1_ip_0', 'vprobe2_ip_0']
 
 
 	compare_iterator = []
@@ -1116,6 +1167,13 @@ def check_vm_layout_headers(build_plan_path):
 ##########################################################################################################################
 
 
+def delete_image(preload_path):
+	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
+	wb = pt[u'Instructions']
+	wb.delete_rows(19,20)
+	#print("button: ", wb._buttons)
+	pt.save(preload_path)
+	
 
 build_plan_path = sys.argv[1]
 check_vnf_specs_headers(build_plan_path)
@@ -1127,6 +1185,7 @@ paths = sys.argv[2]
 for idx, item in enumerate(os.listdir(paths)):
 	preload_list.append(paths+item)
 
+
 dest_folder = sys.argv[3]
 
 
@@ -1135,6 +1194,7 @@ for preload_path in preload_list:
 	if "base" not in preload_path:
 		calculate_vm_count(build_plan_path)
 		for titles in range(0, len(title_list)):
+			delete_image(preload_path)
 			change_general(preload_path, build_plan_path, str(titles + 1))
 			change_networks(preload_path, build_plan_path)
 			change_probe_prod(preload_path, build_plan_path)
@@ -1154,7 +1214,6 @@ for preload_path in preload_list:
 
 # datetime object containing current date and time
 
-
 now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 name = dest_folder.rsplit('/')[-2]
 zipf = name #+ "-" + str(now)
@@ -1166,5 +1225,3 @@ make_archive(archive_name, 'tar', root_dir)
 for fname in os.listdir(dest_folder):
 	if fname.endswith(".xlsm"):
 		os.remove(os.path.join(dest_folder, fname))
-
-
