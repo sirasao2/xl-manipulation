@@ -8,6 +8,7 @@ import os
 import datetime 
 import re
 
+# 5 17 2021
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -550,6 +551,10 @@ def names_tag_sheet(preload_path, build_plan_path):
 	dmn_list = []
 	agw_list = []
 	ricn_list = []
+	cpt_list = []
+	ssf_list = []
+	k8m_list = []
+	k8w_list = []
 	
 
 
@@ -616,6 +621,14 @@ def names_tag_sheet(preload_path, build_plan_path):
 			dmn_list.append(bp.cell_value(i, col_ref_vmn))
 		if "agw" in bp.cell_value(i, col_ref_vmn):
 			agw_list.append(bp.cell_value(i, col_ref_vmn))
+		if "cpt" in bp.cell_value(i, col_ref_vmn):
+			cpt_list.append(bp.cell_value(i, col_ref_vmn))
+		if "ssf" in bp.cell_value(i, col_ref_vmn):
+			ssf_list.append(bp.cell_value(i, col_ref_vmn))
+		if "k8m" in bp.cell_value(i, col_ref_vmn):
+			k8m_list.append(bp.cell_value(i, col_ref_vmn))
+		if "k8w" in bp.cell_value(i, col_ref_vmn):
+			k8w_list.append(bp.cell_value(i, col_ref_vmn))
 
 	# removes brackets and white spaces
 	ricn_list = ('[%s]' % ','.join(map(str, ricn_list)))[1:-1]
@@ -649,7 +662,11 @@ def names_tag_sheet(preload_path, build_plan_path):
 	cgw_list = ('[%s]' % ','.join(map(str, cgw_list)))[1:-1]
 	dmn_list = ('[%s]' % ','.join(map(str, dmn_list)))[1:-1]
 	agw_list = ('[%s]' % ','.join(map(str, agw_list)))[1:-1]
-	
+	cpt_list = ('[%s]' % ','.join(map(str, cpt_list)))[1:-1]
+	ssf_list = ('[%s]' % ','.join(map(str, ssf_list)))[1:-1]
+	k8m_list = ('[%s]' % ','.join(map(str, k8m_list)))[1:-1]
+	k8w_list = ('[%s]' % ','.join(map(str, k8w_list)))[1:-1]
+	k8s_combined_list = k8m_list + "," + k8w_list
 
 	# creates a dict of the vm-type values and the above lists
 
@@ -691,7 +708,15 @@ def names_tag_sheet(preload_path, build_plan_path):
 			"daemon" : dmn_list ,
 			"apigw" : agw_list,
 			"qtraceprocessingregional" : qtp_list,
-			"qtracelbregional" : qlb_list
+			"qtracelbregional" : qlb_list,
+			"vprb" : ssf_list,
+			"vlbagent" : ssf_list,
+			"qrouter" : cpt_list,
+			"vprb" : cpt_list,
+			"vlb" : cpt_list,
+			"vlbagent" : cpt_list,		
+			"kuberiq_master" : k8s_combined_list,
+			"kuberiq_node" : k8s_combined_list
 		}
 
 	if(len(mbm_list) > 0):
@@ -1065,7 +1090,12 @@ def change_ips(preload_path, build_plan_path):
 			#"vprobe1_0_cidr" : vprobe1_cidr_dict, 
 			#"vprobe2_0_cidr" : vprobe2_cidr_dict
 		  }
-		  
+	kuberiq_ips_combined = []
+	for k,v in ip_dict["oam_protected_ips"].items():
+		if "kuberiq" in k:
+			kuberiq_ips_combined.append(v)
+	k_stripped = ('[%s]' % ','.join(map(str, kuberiq_ips_combined)))[1:-1]
+	#print(k_stripped)
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
@@ -1099,6 +1129,9 @@ def change_ips(preload_path, build_plan_path):
 					if k1 == vm_name:
 						val = str(i+1)
 						ws['C' + val].value = v1
+			if tag_sheet.cell_value(i, 1).startswith("kuberiq") and tag_sheet.cell_value(i, 1).endswith("oam_protected_ips"):
+				val = str(i+1)
+				ws['C' + val].value = k_stripped
 		
 	wb.save(preload_path)
 
@@ -1182,7 +1215,7 @@ def delete_image(preload_path):
 
 build_plan_path = sys.argv[1]
 check_vnf_specs_headers(build_plan_path)
-check_vm_layout_headers(build_plan_path)
+#check_vm_layout_headers(build_plan_path)
 #check_vm(build_plan_path)
 
 preload_list = []
@@ -1230,3 +1263,4 @@ make_archive(archive_name, 'tar', root_dir)
 for fname in os.listdir(dest_folder):
 	if fname.endswith(".xlsm"):
 		os.remove(os.path.join(dest_folder, fname))
+
