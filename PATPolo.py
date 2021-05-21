@@ -8,7 +8,7 @@ import os
 import datetime 
 import re
 
-# 5 17 2021
+# 5 21 2021
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -366,9 +366,19 @@ def change_vm(preload_path, build_plan_path, count):
 	vm_type = ws['B7'].value
 
 	# grab values for vm-name and calculate appropriate suffix
-	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
-	ws = wb[u'General']
-	vnf_name_general = ws['C12'].value 
+	bp = openpyxl.load_workbook(build_plan_path, read_only = False, keep_vba=True)
+	ws = bp[u'Site-Info']
+	is_different = ws['B15'].value
+	#print("is different: ", is_different)
+	if is_different == None or is_different != True:
+		wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
+		ws = wb[u'General']
+		vnf_name_general = ws['C12'].value
+	else:
+		bp = openpyxl.load_workbook(build_plan_path, read_only = False, keep_vba=True)
+		ws = bp[u'Site-Info']
+		vnf_name_general = ws['C15'].value
+	#print(vnf_name_general)
 
 
 	# open workbook and specify which sheet you would like to access
@@ -414,7 +424,7 @@ def change_az(preload_path, build_plan_path):
 	This function:
 		- initiates changes for AZ's  
 	"""
-	# open workbook and specify which sheet you would like to access
+	# open workbook and specify which sheet you would  to access
 	# save vm_name
 	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = pt[u'VMs']
@@ -1241,7 +1251,6 @@ for preload_path in preload_list:
 			change_vm(preload_path, build_plan_path, str(titles + 1))
 			change_az(preload_path, build_plan_path)
 			change_vm_network_ips(preload_path, build_plan_path)
-			change_vm_network_ips(preload_path, build_plan_path)
 			names_tag_sheet(preload_path, build_plan_path)
 			tag_sheet_indexes(preload_path, build_plan_path, str(titles))
 			change_ips(preload_path, build_plan_path)
@@ -1263,4 +1272,3 @@ make_archive(archive_name, 'tar', root_dir)
 for fname in os.listdir(dest_folder):
 	if fname.endswith(".xlsm"):
 		os.remove(os.path.join(dest_folder, fname))
-
