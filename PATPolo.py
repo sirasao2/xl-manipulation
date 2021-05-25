@@ -8,7 +8,7 @@ import os
 import datetime 
 import re
 
-# 5 21 2021
+# 5 25 2021
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -483,15 +483,18 @@ def change_vm_network_ips(preload_path, build_plan_path):
 		for j in range(bp.ncols):
 			if bp.cell_value(i, j) == "vm-name":
 				col_ref_vmn = j
-			if bp.cell_value(i, j) == "oam_protected":
+			if bp.cell_value(i, j) != "oam_protected":
+				col_ref_oam = None
+			else:	
 				col_ref_oam = j
 
 	# create dictionary 
 	oam_dict = {}
-	for i in range(bp.nrows):
-		az = bp.cell_value(i, col_ref_vmn)
-		oam = bp.cell_value(i, col_ref_oam)
-		oam_dict[az] = oam
+	if col_ref_oam != None:
+		for i in range(bp.nrows):
+			az = bp.cell_value(i, col_ref_vmn)
+			oam = bp.cell_value(i, col_ref_oam)
+			oam_dict[az] = oam
 
 	# replace values
 	wb = openpyxl.load_workbook(preload_path)
@@ -566,8 +569,6 @@ def names_tag_sheet(preload_path, build_plan_path):
 	k8m_list = []
 	k8w_list = []
 	
-
-
 	for i in range(bp.nrows):
 		if "ricn" in bp.cell_value(i, col_ref_vmn):
 			ricn_list.append(bp.cell_value(i, col_ref_vmn))
@@ -850,12 +851,74 @@ def change_ips(preload_path, build_plan_path):
 		
 			if bp.cell_value(i,j) == "vertica_ic_bond_ip":
 				col_ref_vibi = j
+			
+			if bp.cell_value(i,j) == "VLAN_ID_LEFT_ip_0":
+				col_ref_vili0 = j
+
+			if bp.cell_value(i,j) == "VLAN_ID_LEFT_mac":
+				col_ref_vilm = j	
+			
+			if bp.cell_value(i,j) == "VLAN_ID_RIGHT_ip_0":
+				col_ref_viri0 = j
+
+			if bp.cell_value(i,j) == "VLAN_ID_RIGHT_mac":
+				col_ref_virm = j	
 
 
-	#print("col_ref_vprobe1_0_ip: ", col_ref_vprobe1_0_ip)
+	# create dictionaries of vm-names and ip's 
 
+	vili0_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			vili0 = bp.cell_value(i, col_ref_vili0)
+			if vm_name in vili0_dict:
+				vili0_dict[vm_name].append(vili0)
+			else:
+				vili0_dict[vm_name] = [vili0]
+		except:
+			pass
+	vili0_dict = {k: ",".join(str(x) for x in v) for k,v in vili0_dict.items()}
 
-	# create dictionaries of vm-names and ip's
+	vilm_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			vilm = bp.cell_value(i, col_ref_vilm)
+			if vm_name in vilm_dict:
+				vilm_dict[vm_name].append(vilm)
+			else:
+				vilm_dict[vm_name] = [vilm]
+		except:
+			pass
+	vilm_dict = {k: ",".join(str(x) for x in v) for k,v in vilm_dict.items()}
+
+	viri0_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			viri0 = bp.cell_value(i, col_ref_viri0)
+			if vm_name in viri0_dict:
+				viri0_dict[vm_name].append(viri0)
+			else:
+				viri0_dict[vm_name] = [viri0]
+		except:
+			pass
+	viri0_dict = {k: ",".join(str(x) for x in v) for k,v in viri0_dict.items()}
+
+	virm_dict = {}
+	for i in range(bp.nrows):
+		try:
+			vm_name = bp.cell_value(i, col_ref_vmn)
+			virm = bp.cell_value(i, col_ref_virm)
+			if vm_name in virm_dict:
+				virm_dict[vm_name].append(virm)
+			else:
+				virm_dict[vm_name] = [virm]
+		except:
+			pass
+	virm_dict = {k: ",".join(str(x) for x in v) for k,v in virm_dict.items()}
+
 
 	vprobe1_cidr_dict = {}
 	for i in range(bp.nrows):
@@ -949,7 +1012,6 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	pkt0_dict = {k: ",".join(str(x) for x in v) for k,v in pkt0_dict.items()}
-	#print(pkt0_dict)
 
 	pkt1_dict = {}
 	for i in range(bp.nrows):
@@ -963,7 +1025,6 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	pkt1_dict = {k: ",".join(str(x) for x in v) for k,v in pkt1_dict.items()}
-	#print(pkt1_dict)
 
 	cdr_direct_dict = {}
 	for i in range(bp.nrows):
@@ -977,7 +1038,7 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	cdr_direct_dict = {k: ",".join(str(x) for x in v) for k,v in cdr_direct_dict.items()}
-	#print("CDR: ", cdr_direct_dict)
+
 
 	oam_dict = {}
 	for i in range(bp.nrows):
@@ -1017,7 +1078,7 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	sd_vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in sd_vprobe2_0_ip_dict.items()}
-	#print("sd vprobe 2 DICT: ", sd_vprobe2_0_ip_dict)
+
 
 	vprobe1_0_ip_dict = {}
 	for i in range(bp.nrows):
@@ -1032,11 +1093,8 @@ def change_ips(preload_path, build_plan_path):
 				vprobe1_0_ip_dict[vm_name] = [vprobe1_ip_0_ips]
 		except:
 			pass
-	#for k,v in vprobe1_0_ip_dict.items():
-	#	print("k: ", k)
-	#	print("v: ", v)
 	vprobe1_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe1_0_ip_dict.items()}
-	#print("DICT: ", vprobe1_0_ip_dict)
+
 
 	vprobe2_0_ip_dict = {}
 	for i in range(bp.nrows):
@@ -1051,8 +1109,6 @@ def change_ips(preload_path, build_plan_path):
 			pass
 	vprobe2_0_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vprobe2_0_ip_dict.items()}
 
-	#print("DICT: ", vprobe2_0_ip_dict )
-
 	cdr_direct_bond_ip_dict = {}
 	for i in range(bp.nrows):
 		try:
@@ -1065,7 +1121,7 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	cdr_direct_bond_ip_dict = {k: ",".join(str(x) for x in v) for k,v in cdr_direct_bond_ip_dict.items()}
-	#print("DICT: ", cdr_direct_bond_ip_dict )
+
 
 	vertica_ic_bond_ip_dict = {}
 	for i in range(bp.nrows):
@@ -1079,11 +1135,8 @@ def change_ips(preload_path, build_plan_path):
 		except:
 			pass
 	vertica_ic_bond_ip_dict = {k: ",".join(str(x) for x in v) for k,v in vertica_ic_bond_ip_dict.items()}
-	#print("DICT: ", vertica_ic_bond_ip_dict)
 
-
-
-	# create dictionary of dictionaries
+	# create dictionary of dictionaries    
 	ip_dict = {
 			"cdr_direct_bond_ip" : cdr_direct_dict, 
 		   	"oam_protected_ips" : oam_dict, 
@@ -1094,18 +1147,17 @@ def change_ips(preload_path, build_plan_path):
 			"vprobe2_ip_0" : vprobe2_0_ip_dict, 
 			"sd_vprobe2_ip_0" : sd_vprobe2_0_ip_dict,
 			"cdr_direct_bond_ip" : cdr_direct_bond_ip_dict,
-			"vertica_ic_bond_ip" : vertica_ic_bond_ip_dict
-			#"sd_vprobe1_0_cidr" : sd_vprobe1_cidr_dict, 
-			#"sd_vprobe2_0_cidr" : sd_vprobe2_cidr_dict, 
-			#"vprobe1_0_cidr" : vprobe1_cidr_dict, 
-			#"vprobe2_0_cidr" : vprobe2_cidr_dict
+			"vertica_ic_bond_ip" : vertica_ic_bond_ip_dict,
+			"VLAN_ID_LEFT_ip_0" : vili0_dict,
+			"VLAN_ID_LEFT_mac" : vilm_dict,
+			"VLAN_ID_RIGHT_ip_0" : viri0_dict,
+			"VLAN_ID_RIGHT_mac" : virm_dict
 		  }
 	kuberiq_ips_combined = []
 	for k,v in ip_dict["oam_protected_ips"].items():
 		if "kuberiq" in k:
 			kuberiq_ips_combined.append(v)
 	k_stripped = ('[%s]' % ','.join(map(str, kuberiq_ips_combined)))[1:-1]
-	#print(k_stripped)
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
@@ -1145,97 +1197,22 @@ def change_ips(preload_path, build_plan_path):
 		
 	wb.save(preload_path)
 
-## CHECKS AND VALIDATION ##
-def check_vnf_specs_headers(build_plan_path):
-	# scan the headers of the given build plan
-	# if the build plan has all headers, good
-	# if it does not, return needed ones
-
-	# open workbook and specify which sheet you would like to access
-	wb = xlrd.open_workbook(build_plan_path)
-	sheet_names = wb.sheet_names()
-	bp = wb.sheet_by_name(u'VNF-Specs')
-
-	# string search VM-Layout column headers and assign each columns reference position (int) to a variable
-	# this avoids hard coding the position of certain columns
-	# order does not matter
-	for i in range(bp.nrows):
-		for j in range(bp.ncols):
-			if bp.cell_value(i, j) == "vm-type":
-				row_ref_vmt = i
-
-	vnf_specs_headers_needed= ['VM Name', 'vm-type', 'nf_naming_code\n(VVVV)', 'VNF Type \n(tt)', 'nfc_naming_code \n(ppp)', "# of VM's", 'vnf-type', 'vf-module-model-name', 'vf-module-model-name-base', 'vf-module-name', 'vnf-name', 'Flavor Name', 'Cinder Volume Size', 'Image Name', 'security_group_name', 'probe_pod', 'vertica_configuration_cluster_name']
-	compare_iterator = []
-	for i in range(bp.nrows):
-		for j in range(bp.ncols):
-			compare_iterator.append(bp.cell_value(row_ref_vmt, j))
-	#print(compare_iterator)
-
-	if len(list(set(vnf_specs_headers_needed) - set(compare_iterator))) == 0:
-		print("You have all correct headers in VNF-Specs.")
-		print("\n")
-	else:
-		print("You are missing: ", list(set(vnf_specs_headers_needed) - set(compare_iterator)), "from VNF-Specs headers. If you need these values, please append this to VNF-Specs tab.")
-		print("\n")
-
-def check_vm_layout_headers(build_plan_path):
-	# scan the headers of the given build plan
-	# if the build plan has all headers, good
-	# if it does not, return needed ones
-
-	# open workbook and specify which sheet you would like to access
-	wb = xlrd.open_workbook(build_plan_path)
-	sheet_names = wb.sheet_names()
-	bp = wb.sheet_by_name(u'VM-Layout')
-
-	# string search VM-Layout column headers and assign each columns reference position (int) to a variable
-	# this avoids hard coding the position of certain columns
-	# order does not matter
-	for i in range(bp.nrows):
-		for j in range(bp.ncols):
-			if bp.cell_value(i, j) == "vm-type":
-				row_ref_vmt = i
-
-	vm_layout_headers_needed= ['VM Name', 'vm-type', 'nf_naming_code\n(VF Level) VVVV Code','VNF Type (tt)', 'VFC ID (ppp)', 'VM Instance #', 'vm-name', 'AZ:Compute', 'cdr_direct_bond_ip', 'pktinternal_1_ip_0', 'pktinternal_2_ip_0', 'pktmirror_0_ip_0', 'oam_protected', 'oam_direct', 'ext_pktinternal_ip', 'vfl_pktinternal_0_ip', 'sd_vprobe1_ip_0', 'sd_vprobe2_ip_0', 'vprobe1_ip_0', 'vprobe2_ip_0']
-
-
-	compare_iterator = []
-	for i in range(bp.nrows):
-		for j in range(bp.ncols):
-			compare_iterator.append(bp.cell_value(row_ref_vmt, j)) 
-
-	if len(list(set(vm_layout_headers_needed) - set(compare_iterator))) == 0:
-		print("You have all correct headers in VM-Layout.")
-		print("\n")
-	else:
-		print("You are missing: ", list(set(vm_layout_headers_needed) - set(compare_iterator)), "from VM-Layout headers. If you need these values, please append this to VM-Layout tab.")
-		print("\n")
-
-
-##########################################################################################################################
-
 
 def delete_image(preload_path):
 	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	wb = pt[u'Instructions']
 	wb.delete_rows(19,20)
-	#print("button: ", wb._buttons)
+
 	pt.save(preload_path)
 	
 
 build_plan_path = sys.argv[1]
-check_vnf_specs_headers(build_plan_path)
-#check_vm_layout_headers(build_plan_path)
-#check_vm(build_plan_path)
-
 preload_list = []
 paths = sys.argv[2]
 for idx, item in enumerate(os.listdir(paths)):
 	preload_list.append(paths+item)
 
-
 dest_folder = sys.argv[3]
-
 
 files = []
 for preload_path in preload_list:
@@ -1272,3 +1249,4 @@ make_archive(archive_name, 'tar', root_dir)
 for fname in os.listdir(dest_folder):
 	if fname.endswith(".xlsm"):
 		os.remove(os.path.join(dest_folder, fname))
+
