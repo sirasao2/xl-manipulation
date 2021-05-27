@@ -8,7 +8,7 @@ import os
 import datetime 
 import re
 
-# 5 25 2021
+# 5 27 2021
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -774,6 +774,11 @@ def tag_sheet_indexes(preload_path, build_plan_path, count):
 	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
+		if tag_sheet.cell_value(i, 1).endswith("index") and tag_sheet.cell_value(i, 1).startswith("kuberiq"):
+				val = str(i+1)
+				count = int(count) + 1
+				ws['C' + val].value = str(count)
+
 		if(tag_sheet.cell_value(i, 1).endswith("index")):
 				val = str(i+1)
 				ws['C' + val].value = str(count)
@@ -1249,4 +1254,3 @@ make_archive(archive_name, 'tar', root_dir)
 for fname in os.listdir(dest_folder):
 	if fname.endswith(".xlsm"):
 		os.remove(os.path.join(dest_folder, fname))
-
