@@ -8,7 +8,7 @@ import os
 import datetime 
 import re
 
-# 5 27 2021
+# 6 8 2021
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -568,6 +568,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 	ssf_list = []
 	k8m_list = []
 	k8w_list = []
+	cke_list = []
 	
 	for i in range(bp.nrows):
 		if "ricn" in bp.cell_value(i, col_ref_vmn):
@@ -640,6 +641,8 @@ def names_tag_sheet(preload_path, build_plan_path):
 			k8m_list.append(bp.cell_value(i, col_ref_vmn))
 		if "k8w" in bp.cell_value(i, col_ref_vmn):
 			k8w_list.append(bp.cell_value(i, col_ref_vmn))
+		if "cke" in bp.cell_value(i, col_ref_vmn):
+			cke_list.append(bp.cell_value(i, col_ref_vmn))		
 
 	# removes brackets and white spaces
 	ricn_list = ('[%s]' % ','.join(map(str, ricn_list)))[1:-1]
@@ -675,9 +678,12 @@ def names_tag_sheet(preload_path, build_plan_path):
 	agw_list = ('[%s]' % ','.join(map(str, agw_list)))[1:-1]
 	cpt_list = ('[%s]' % ','.join(map(str, cpt_list)))[1:-1]
 	ssf_list = ('[%s]' % ','.join(map(str, ssf_list)))[1:-1]
+	cke_list = ('[%s]' % ','.join(map(str, cke_list)))[1:-1]
 	k8m_list = ('[%s]' % ','.join(map(str, k8m_list)))[1:-1]
 	k8w_list = ('[%s]' % ','.join(map(str, k8w_list)))[1:-1]
 	k8s_combined_list = k8m_list + "," + k8w_list
+
+	print("cke list: ", cke_list)
 
 	# creates a dict of the vm-type values and the above lists
 
@@ -727,7 +733,11 @@ def names_tag_sheet(preload_path, build_plan_path):
 			"vlb" : cpt_list,
 			"vlbagent" : cpt_list,		
 			"kuberiq_master" : k8s_combined_list,
-			"kuberiq_node" : k8s_combined_list
+			"kuberiq_node" : k8s_combined_list,
+			"vlb" : cke_list,
+			"qrouter" : cke_list,
+			"vprb" : cke_list,
+			"vlbagent" : cke_list
 		}
 
 	if(len(mbm_list) > 0):
