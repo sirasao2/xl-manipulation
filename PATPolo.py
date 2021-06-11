@@ -8,7 +8,7 @@ import os
 import datetime 
 import re
 
-# 6 8 2021
+# 6 11 2021
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -483,28 +483,22 @@ def change_vm_network_ips(preload_path, build_plan_path):
 		for j in range(bp.ncols):
 			if bp.cell_value(i, j) == "vm-name":
 				col_ref_vmn = j
-			if bp.cell_value(i, j) != "oam_protected":
-				col_ref_oam = None
-			else:	
+			if bp.cell_value(i, j) == "oam_protected":
 				col_ref_oam = j
 
 	# create dictionary 
 	oam_dict = {}
-	if col_ref_oam != None:
-		for i in range(bp.nrows):
-			az = bp.cell_value(i, col_ref_vmn)
-			oam = bp.cell_value(i, col_ref_oam)
-			oam_dict[az] = oam
+	for i in range(bp.nrows):
+		vmn = bp.cell_value(i, col_ref_vmn)
+		oam = bp.cell_value(i, col_ref_oam)
+		oam_dict[vmn] = oam
 
 	# replace values
 	wb = openpyxl.load_workbook(preload_path)
 	ws = wb[u'VM-network-IPs']
 	for k, v in oam_dict.items():
-		if v == None:
-			pass
-		else:
-			if k == vm_name:
-				ws['D7'].value = v
+		if k == vm_name:
+			ws['D7'].value = v
 				#wb = xw.Book(preload_path)
 				#wb.sheets[6].range('D7').value = v	
 	wb.save(preload_path)
@@ -569,6 +563,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 	k8m_list = []
 	k8w_list = []
 	cke_list = []
+	keb_list = []
 	
 	for i in range(bp.nrows):
 		if "ricn" in bp.cell_value(i, col_ref_vmn):
@@ -642,7 +637,9 @@ def names_tag_sheet(preload_path, build_plan_path):
 		if "k8w" in bp.cell_value(i, col_ref_vmn):
 			k8w_list.append(bp.cell_value(i, col_ref_vmn))
 		if "cke" in bp.cell_value(i, col_ref_vmn):
-			cke_list.append(bp.cell_value(i, col_ref_vmn))		
+			cke_list.append(bp.cell_value(i, col_ref_vmn))
+		if "keb" in bp.cell_value(i, col_ref_vmn):
+			keb_list.append(bp.cell_value(i, col_ref_vmn))		
 
 	# removes brackets and white spaces
 	ricn_list = ('[%s]' % ','.join(map(str, ricn_list)))[1:-1]
@@ -679,11 +676,11 @@ def names_tag_sheet(preload_path, build_plan_path):
 	cpt_list = ('[%s]' % ','.join(map(str, cpt_list)))[1:-1]
 	ssf_list = ('[%s]' % ','.join(map(str, ssf_list)))[1:-1]
 	cke_list = ('[%s]' % ','.join(map(str, cke_list)))[1:-1]
+	keb_list = ('[%s]' % ','.join(map(str, keb_list)))[1:-1]
 	k8m_list = ('[%s]' % ','.join(map(str, k8m_list)))[1:-1]
 	k8w_list = ('[%s]' % ','.join(map(str, k8w_list)))[1:-1]
 	k8s_combined_list = k8m_list + "," + k8w_list
 
-	print("cke list: ", cke_list)
 
 	# creates a dict of the vm-type values and the above lists
 
@@ -737,7 +734,8 @@ def names_tag_sheet(preload_path, build_plan_path):
 			"vlb" : cke_list,
 			"qrouter" : cke_list,
 			"vprb" : cke_list,
-			"vlbagent" : cke_list
+			"vlbagent" : cke_list,
+			"kafka" : keb_list
 		}
 
 	if(len(mbm_list) > 0):
@@ -784,11 +782,6 @@ def tag_sheet_indexes(preload_path, build_plan_path, count):
 	wb = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
-		if tag_sheet.cell_value(i, 1).endswith("index") and tag_sheet.cell_value(i, 1).startswith("kuberiq"):
-				val = str(i+1)
-				count = int(count) + 1
-				ws['C' + val].value = str(count)
-
 		if(tag_sheet.cell_value(i, 1).endswith("index")):
 				val = str(i+1)
 				ws['C' + val].value = str(count)
