@@ -8,7 +8,7 @@ import os
 import datetime 
 import re
 
-# 6 11 2021
+# 6 22 2021
 
 def calculate_vm_count(build_plan_path):
 	"""
@@ -19,6 +19,7 @@ def calculate_vm_count(build_plan_path):
 	"""
 	global final_vf_module_name
 	global title_list
+
 
 	# gather the vm_type
 	pt = openpyxl.load_workbook(preload_path, read_only = False, keep_vba=True)
@@ -43,18 +44,23 @@ def calculate_vm_count(build_plan_path):
 				col_ref_vmc = j
 			if bp.cell_value(i, j) == "vf-module-name":
 					col_ref_vfmn = j
+	#print("vmc: ", col_ref_vmc)
 
 	# create dict of vm-type and each vm-types VM Count
 	count_dict = {}
 	for i in range(bp.nrows):
 		vm = bp.cell_value(i, col_ref_vmt)
-		count = bp.cell_value(i, col_ref_vmc)
-		count_dict[vm] = count
+		vm_count = bp.cell_value(i, col_ref_vmc)
+		count_dict[vm] = vm_count
+
+	#print("cd: ", count_dict)
 
 	# cast as integer as it is pulled as a string
 	for k, v in count_dict.items():
-		if k == vm_type:
-			vm_count = int(v)
+		if k != '' and k == vm_type:
+			vm_count = int(float(v))
+
+	#print("vmcount: ", type(vm_count))
 
 	# create dictionary of vm-names and vfmn for title generation  
 	vfmn_dict = {}
@@ -63,10 +69,12 @@ def calculate_vm_count(build_plan_path):
 		vfmn = bp.cell_value(i, col_ref_vfmn)
 		vfmn_dict[vm] = vfmn
 
+	#print("vfmn_dict: ", vfmn_dict)
+
 	# give the titles based on which vm-type the current file is
 	title_list = []
 	for k, v in vfmn_dict.items():
-		for i in range(1, vm_count+1):
+		for i in range(1, int(vm_count)+1):
 			if k != '' and k == vm_type:
 				title_list.append(v)
 
@@ -679,7 +687,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 	keb_list = ('[%s]' % ','.join(map(str, keb_list)))[1:-1]
 	k8m_list = ('[%s]' % ','.join(map(str, k8m_list)))[1:-1]
 	k8w_list = ('[%s]' % ','.join(map(str, k8w_list)))[1:-1]
-	k8s_combined_list = k8m_list + "," + k8w_list
+	k8s_combined_list = k8m_list + k8w_list
 	#k8s_combined_list = ('[%s]' % ','.join(map(str, k8s_combined_list)))[1:-1]
 
 	#print("cpt list: ", cpt_list)
@@ -729,22 +737,26 @@ def names_tag_sheet(preload_path, build_plan_path):
 
 
 	# creates a dict of the vm-type values and the above lists
-
-
-	#if(len(mbm_list) > 0):
-	#	names_dict["processing"] = mbm_list
-	#else:
-	#	names_dict["processing"] = imm_list
-
+	
+	#for k, v in ppp_dict.items():
+	#	if len(v) != 0 or v != '':
+	#		print(k, v)
 
 	# take vm type
 	pt = openpyxl.load_workbook(preload_path)
 	ws = pt[u'VMs']
 	vm_type = ws['B7'].value
+	vm_type = str(vm_type)
+	#print("vmt: ", vm_type)
 
-	
-	ppp = bp.cell_value(i, col_ref_ppp)
-	n = ppp + "_list"
+
+	ws = pt[u'VMs']
+	vm_name = ws['C7'].value
+	vm_name = vm_name[-6:]
+	ppp = vm_name[0:3]
+	ppp = ppp + "_list"
+	ppp = str(ppp)	
+	#print(ppp)
 
 	# open workbook and specify which sheet you would like to access
 	wb = xlrd.open_workbook(preload_path)
@@ -755,11 +767,12 @@ def names_tag_sheet(preload_path, build_plan_path):
 	wb = openpyxl.load_workbook(preload_path)
 	ws = wb[u'Tag-values']
 	for i in range(tag_sheet.nrows):
-		for k, v in ppp_dict.items():
-			if(tag_sheet.cell_value(i, 1) == (vm_type + "_names")) and k == n: #and k != ''):			
-				val = str(i+1)
-				#print("str(v) :", str(v))
-				ws['C' + val].value = str(v) # should this be string
+		if(tag_sheet.cell_value(i, 1) == (str(vm_type) + "_names")):
+			for k,v in ppp_dict.items():	
+				if k == ppp:	
+					val = str(i+1)
+					#print("str(v)! :", v)
+					ws['C' + val].value = str(v) # should this be string
 	wb.save(preload_path)
 
 def tag_sheet_indexes(preload_path, build_plan_path, count):
@@ -1252,4 +1265,3 @@ make_archive(archive_name, 'tar', root_dir)
 for fname in os.listdir(dest_folder):
 	if fname.endswith(".xlsm"):
 		os.remove(os.path.join(dest_folder, fname))
-
