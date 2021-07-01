@@ -572,6 +572,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 	k8w_list = []
 	cke_list = []
 	keb_list = []
+	fmc_list = []
 	
 	for i in range(bp.nrows):
 		if "ricn" in bp.cell_value(i, col_ref_vmn):
@@ -640,6 +641,8 @@ def names_tag_sheet(preload_path, build_plan_path):
 			cpt_list.append(bp.cell_value(i, col_ref_vmn))
 		if "ssf" in bp.cell_value(i, col_ref_vmn):
 			ssf_list.append(bp.cell_value(i, col_ref_vmn))
+		if "fmc" in bp.cell_value(i, col_ref_vmn):
+			fmc_list.append(bp.cell_value(i, col_ref_vmn))
 		if "k8m" in bp.cell_value(i, col_ref_vmn):
 			k8m_list.append(bp.cell_value(i, col_ref_vmn))
 		if "k8w" in bp.cell_value(i, col_ref_vmn):
@@ -683,6 +686,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 	agw_list = ('[%s]' % ','.join(map(str, agw_list)))[1:-1]
 	cpt_list = ('[%s]' % ','.join(map(str, cpt_list)))[1:-1]
 	ssf_list = ('[%s]' % ','.join(map(str, ssf_list)))[1:-1]
+	fmc_list = ('[%s]' % ','.join(map(str, fmc_list)))[1:-1]
 	cke_list = ('[%s]' % ','.join(map(str, cke_list)))[1:-1]
 	keb_list = ('[%s]' % ','.join(map(str, keb_list)))[1:-1]
 	k8m_list = ('[%s]' % ','.join(map(str, k8m_list)))[1:-1]
@@ -718,6 +722,7 @@ def names_tag_sheet(preload_path, build_plan_path):
 			"ssr_list": ssr_list,
 			"vdb_list": vdb_list,
 			"log_list": log_list,
+			"fmc_list": fmc_list,
 			"imm_list": imm_list,
 			"srp_list": srp_list,
 			"crp_list": crp_list,
