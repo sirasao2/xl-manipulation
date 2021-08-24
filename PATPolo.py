@@ -11,7 +11,7 @@ import warnings
 
 warnings.filterwarnings('ignore')  # supress UserWarning Excel Data Validation
 
-# 8-23-2021
+# 8-24-21
 
 def calculate_vm_count(build_plan_path):
     """
@@ -503,7 +503,8 @@ def change_vm_network_ips(preload_path, build_plan_path):
                 col_ref_oam = j
             else:  # ngxp
                 ngxp_net_cols = ["ngxp_oam_net", "ngxp_mgt_net", "ngxp_cdr_net", "int_ngxp_be_ccd_net",
-                                 "int_ngxp_admin_ccd_net", "int_ngxp_ecde_ccd_net", "oam_protected_net"]
+                                 "int_ngxp_admin_ccd_net", "int_ngxp_ecde_ccd_net", "oam_protected_net",
+                                 "int_ngxp_fe_ccd_net", "int_ngxp_pcu_net", "int_probe_agent_net_1", "int_probe_agent_net_2"]
                 for val in ngxp_net_cols:
                     if bp.cell_value(i, j) == val:
                         col_ref_ngxp[bp.cell_value(i, j)] = j
@@ -1020,6 +1021,18 @@ def change_ips(preload_path, build_plan_path):
             if bp.cell_value(i, j) == "oam_protected_net":
                 col_ref_oam_protected_ip = j
 
+            if bp.cell_value(i, j) == "int_ngxp_fe_ccd_net":
+                col_ref_fe_ccd_ip = j
+
+            if bp.cell_value(i, j) == "int_ngxp_pcu_net":
+                col_ref_fe_pcu_ip = j
+
+            if bp.cell_value(i, j) == "int_probe_agent_net_1":
+                col_ref_fe_net1_ip = j
+
+            if bp.cell_value(i, j) == "int_probe_agent_net_2":
+                col_ref_fe_net2_ip = j
+
     # create dictionaries of vm-names and ip's
 
     vili0_dict = {}
@@ -1375,6 +1388,58 @@ def change_ips(preload_path, build_plan_path):
             pass
     ngxp_oam_protected_dict = {k: ",".join(str(x) for x in v) for k, v in ngxp_oam_protected_dict.items()}
 
+    ngxp_fe_ccd_dict = {}
+    for i in range(bp.nrows):
+        try:
+            vm_name = bp.cell_value(i, col_ref_vmn)
+            ngxp_fe_ccd = bp.cell_value(i, col_ref_fe_ccd_ip)
+            if vm_name in ngxp_fe_ccd_dict:
+                ngxp_fe_ccd_dict[vm_name].append(ngxp_fe_ccd)
+            else:
+                ngxp_fe_ccd_dict[vm_name] = [ngxp_fe_ccd]
+        except:
+            pass
+    ngxp_fe_ccd_dict = {k: ",".join(str(x) for x in v) for k, v in ngxp_fe_ccd_dict.items()}
+
+    ngxp_fe_pcu_dict = {}
+    for i in range(bp.nrows):
+        try:
+            vm_name = bp.cell_value(i, col_ref_vmn)
+            ngxp_fe_pcu = bp.cell_value(i, col_ref_fe_pcu_ip)
+            if vm_name in ngxp_fe_pcu_dict:
+                ngxp_fe_pcu_dict[vm_name].append(ngxp_fe_pcu)
+            else:
+                ngxp_fe_pcu_dict[vm_name] = [ngxp_fe_pcu]
+        except:
+            pass
+    ngxp_fe_pcu_dict = {k: ",".join(str(x) for x in v) for k, v in ngxp_fe_pcu_dict.items()}
+
+    ngxp_fe_net1_dict = {}
+    for i in range(bp.nrows):
+        try:
+            vm_name = bp.cell_value(i, col_ref_vmn)
+            ngxp_fe_net1 = bp.cell_value(i, col_ref_fe_net1_ip)
+            if vm_name in ngxp_fe_net1_dict:
+                ngxp_fe_net1_dict[vm_name].append(ngxp_fe_net1)
+            else:
+                ngxp_fe_net1_dict[vm_name] = [ngxp_fe_net1]
+        except:
+            pass
+    ngxp_fe_net1_dict = {k: ",".join(str(x) for x in v) for k, v in ngxp_fe_net1_dict.items()}
+
+    ngxp_fe_net2_dict = {}
+    for i in range(bp.nrows):
+        try:
+            vm_name = bp.cell_value(i, col_ref_vmn)
+            ngxp_fe_net2 = bp.cell_value(i, col_ref_fe_net2_ip)
+            if vm_name in ngxp_fe_net2_dict:
+                ngxp_fe_net2_dict[vm_name].append(ngxp_fe_net2)
+            else:
+                ngxp_fe_net2_dict[vm_name] = [ngxp_fe_net2]
+        except:
+            pass
+    ngxp_fe_net2_dict = {k: ",".join(str(x) for x in v) for k, v in ngxp_fe_net2_dict.items()}
+
     # create dictionary of dictionaries
     ip_dict = {
         "cdr_direct_bond_ip": cdr_direct_dict,
@@ -1397,7 +1462,11 @@ def change_ips(preload_path, build_plan_path):
         "ngxp_be_ccd1_ip_0": ngxp_be_ccd_dict,
         "ngxp_admin_ccd1_ip_0": ngxp_admin_ccd_dict,
         "ngxp_ecde_ccd1_ip_0": ngxp_ecde_ccd_dict,
-        "oam_protected1_ip_0": ngxp_oam_protected_dict
+        "oam_protected1_ip_0": ngxp_oam_protected_dict,
+        "ngxp_fe_ccd1_ip_0": ngxp_fe_ccd_dict,
+        "ngxp_fe_pcu_ip_0": ngxp_fe_pcu_dict,
+        "ngxp_fe_net_1_ip_0": ngxp_fe_net1_dict,
+        "ngxp_fe_net_2_ip_0": ngxp_fe_net2_dict
 
     }
 
@@ -1447,11 +1516,13 @@ def change_ips(preload_path, build_plan_path):
 
     wb.save(preload_path)
 
+
 def change_ngxp_tag(preload_path, build_plan_path):
     """
 	This function:
 		- fills in the ngxp values for Tag-values sheet
 	"""
+
     # open workbook and specify which sheet you would like to access
     wb = openpyxl.load_workbook(preload_path, read_only=False, keep_vba=True)
     ws = wb[u'Tag-values']
@@ -1525,10 +1596,12 @@ def change_ngxp_tag(preload_path, build_plan_path):
 
 
 def delete_image(preload_path):
+    wb1 = openpyxl.load_workbook(preload_path)
+    wb1.save(preload_path)
     pt = openpyxl.load_workbook(preload_path, read_only=False, keep_vba=True)
-    wb = pt[u'Instructions']
-    wb.delete_rows(19, 20)
-    wb._images = []  # delete all images
+    #wb = pt[u'Instructions']
+    #wb.delete_rows(19, 20)
+    #wb._images = []  # delete all images
     pt.save(preload_path)
 
 
@@ -1544,10 +1617,10 @@ dest_folder = sys.argv[3]
 
 files = []
 for preload_path in preload_list:
+    delete_image(preload_path)
     if "base" not in preload_path:
         calculate_vm_count(build_plan_path)
         for titles in range(0, len(title_list)):
-            delete_image(preload_path)
             change_general(preload_path, build_plan_path, str(titles + 1))
             change_networks(preload_path, build_plan_path)
             change_probe_prod(preload_path, build_plan_path)
